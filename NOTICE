@@ -4,3 +4,9 @@ Licensed under the MIT License
 Some material:
 Copyright 2024 Comcast Cable Communications Management, LLC
 Licensed under the Apache License, Version 2.0
+
+The zzz_generated.tar.gz file uses material from Project Chip which is:
+Copyright (c) 2023 Project CHIP Authors
+Licensed under the Apache License, Version 2.0
+See the README.md file under recipes-matter for details.
+The parent ZAP file is included as `recipes-matter/barton-matter-reference/files/barton.zap`

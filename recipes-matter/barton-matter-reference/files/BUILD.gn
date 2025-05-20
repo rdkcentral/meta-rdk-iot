@@ -1,0 +1,40 @@
+# Format with `gn format BUILD.gn`
+
+import("//build_overrides/build.gni")
+import("//build_overrides/chip.gni")
+
+import("${chip_root}/build/chip/tools.gni")
+import("${chip_root}/src/app/chip_data_model.gni")
+
+chip_data_model("barton-data-model") {
+  zap_file = "barton.zap"
+  is_server =  true
+}
+
+# Dependency order for the server is _very_ important here.
+# Even though the chip_data_model template includes the server,
+# an important ZCL function (InitDataModelHandler) is defaulted
+# with a weak symbol. If that default is not the very last instance
+# in the static library, anyone that links to libBartonMatter.a
+# will get the noop default instaed of the real InitDataModelHandler
+# even though it was previously defined as a strong symbol.
+static_library("barton") {
+  deps = [
+    "//src/credentials:default_attestation_verifier",
+    "//src/credentials:file_attestation_trust_store",
+    "//src/lib",
+    "//src/protocols",
+    "//src/setup_payload",
+    "//src/app/server",
+    ":barton-data-model",
+    "${chip_root}/src/platform/logging:default"
+  ]
+
+  output_name = "libBartonMatter"
+  complete_static_lib = true
+  output_dir = "${root_out_dir}/lib"
+}
+
+group("default") {
+  deps = [":barton"]
+}

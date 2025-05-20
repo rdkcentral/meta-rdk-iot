@@ -1,0 +1,11 @@
+# This is the bare minimum to make pigweed happy when not actually using
+# any pigweed modules. CSA's setup is oddly very tightly coupled to
+# pigweed, but applications that don't need it can safely turn it off
+# with this include.
+
+declare_args() {
+  pw_env_setup_CIPD_PIGWEED = ""
+  pw_env_setup_CIPD_ARM = ""
+  pw_env_setup_CIPD_PYTHON = ""
+  pw_env_setup_VIRTUAL_ENV = ""
+}

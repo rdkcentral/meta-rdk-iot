@@ -51,17 +51,42 @@ EXTRA_OECMAKE = "\
     -DMATTER_CONF_DIR=/tmp \
 "
 
+# These are intentionally undefined in the base recipe and must be provided by
+# the client in a bbappend
+MATTER_ZAP_FILE ?= ""
+MATTER_ZZZ_GENERATED ?= ""
+
+python do_check_matter_configuration() {
+    zap_file = d.getVar('MATTER_ZAP_FILE')
+    zzz_generated = d.getVar('MATTER_ZZZ_GENERATED')
+
+    error_msg = []
+    
+    if not zap_file:
+        error_msg.append("MATTER_ZAP_FILE is not defined")
+    
+    if not zzz_generated:
+        error_msg.append("MATTER_ZZZ_GENERATED is not defined")
+    
+    if error_msg:
+        bb.fatal("""
+ERROR: Missing required Matter configuration variables.
+This recipe requires customization through a bbappend file.
+
+%s
+
+See barton-matter-example directory for an example implementation.
+""" % "\n".join(error_msg))
+}
+
+addtask check_matter_configuration before do_configure
+
 do_configure_prepend() {
     mkdir -p ${S}/third_party/barton
     cp -r ${THISDIR}/files/. ${S}/third_party/barton/
-
-    if [ -f ${S}/third_party/barton/zzz_generated.tar.gz ]; then
-        tar -xzf ${S}/third_party/barton/zzz_generated.tar.gz -C ${S}/third_party/barton/
-    else
-        echo "Error: zzz_generated.tar.gz not found in ${S}/third_party/barton."
-        echo "Run the scripts/generate_zzz.sh script outside the yocto environment to generate it."
-        exit 1
-    fi
+    # Copy the client's Matter configuration files provided in the bbappend
+    cp ${MATTER_ZAP_FILE} ${S}/third_party/barton/
+    cp -r ${MATTER_ZZZ_GENERATED} ${S}/third_party/barton/
 
     export SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
     cd ${WORKDIR}/git

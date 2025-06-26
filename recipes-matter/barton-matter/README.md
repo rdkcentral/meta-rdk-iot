@@ -79,15 +79,15 @@ your-layer/
         └── your-zap-file.zap
 ```
 
-Then run the `generate_zzz.sh` script and pass the path to your recipe directory
-as the first argument:
+Then run the `generate_zzz.sh` script and pass the path to your zap file as the
+first argument:
 
 ```bash
-files/scripts/generate_zzz.sh /path/to/your-barton-matter-recipe
+files/scripts/generate_zzz.sh /path/to/your-layer/your-barton-matter-recipe/files/your-zap-file.zap
 ```
 
-This will generate the zzz_generated.tar.gz file in the files/ subdirectory of
-your recipe directory, ready for use by the Yocto build system.
+This will generate the zzz_generated.tar.gz file in the files/ directory containing
+the zap file, ready for use by the Yocto build system.
 **Note**: Docker is required to run this script.
 
 3. **Recipe Usage**

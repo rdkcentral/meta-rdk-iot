@@ -4,8 +4,8 @@
 # and creates a tarball in the specified output directory.
 # 
 # The script requires Docker and expects:
-# 1. An output directory containing a files/*.zap file
-# 2. The output directory to have write permissions
+# 1. A path to a .zap file (must be located in a 'files/' directory)
+# 2. Write permissions for the 'files/' directory where output will be placed
 #
 # For full documentation, see the Pregenerated Code section of the README.md file
 # in the barton-matter recipe.
@@ -17,7 +17,7 @@ HERE=$(dirname $(realpath $0))
 usage()
 {
     cat <<EOF
-Usage: $0 <output-dir>
+Usage: $0 <zap-file-path>
 
 Generate Matter code from the provided ZAP file and create zzz_generated.tar.gz
 
@@ -25,7 +25,7 @@ Options:
   -h, --help        Show this help message and exit
 
 Arguments:
-  <output-dir>      Path to recipe directory with files/*.zap
+  <zap-file-path>   Full path to the ZAP file (must be in a files/ directory)
 EOF
 }
 
@@ -43,25 +43,17 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
-# Check output directory structure and requirements
-OUTPUT_DIR=$(realpath "$1")
-OUTPUT_FILES_DIR="${OUTPUT_DIR}/files"
-
-if [ ! -d "${OUTPUT_DIR}" ]; then
-    echo "ERROR: Output directory '${OUTPUT_DIR}' does not exist."
+ZAP_FILE=$(realpath "$1")
+if [ ! -f "${ZAP_FILE}" ]; then
+    echo "ERROR: ZAP file '${ZAP_FILE}' does not exist."
     exit 1
 fi
 
-if [ ! -d "${OUTPUT_FILES_DIR}" ]; then
-    echo "ERROR: Files directory '${OUTPUT_FILES_DIR}' does not exist."
-    echo "Create the directory structure: ${OUTPUT_DIR}/files/"
-    exit 1
-fi
-
-ZAP_FILE=$(find "${OUTPUT_FILES_DIR}" -maxdepth 1 -type f -name "*.zap" | head -n 1)
-if [ -z "${ZAP_FILE}" ]; then
-    echo "ERROR: No .zap file found in '${OUTPUT_FILES_DIR}'"
-    echo "Please create or copy your ZAP file (*.zap) to this location."
+# Infer output directory from ZAP file path
+# The ZAP file must be in a files/ directory
+OUTPUT_FILES_DIR=$(dirname "${ZAP_FILE}")
+if [[ "${OUTPUT_FILES_DIR}" != */files ]]; then
+    echo "ERROR: ZAP file must be in a directory named 'files/'"
     exit 1
 fi
 

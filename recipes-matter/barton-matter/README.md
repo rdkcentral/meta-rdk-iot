@@ -1,10 +1,10 @@
 # Barton Matter
-This recipe provides the base implementation for integrating Matter with Barton
-in Yocto-based RDK environments. It is designed to be extended by client layers
-using bbappend files, allowing each product to supply its own ZAP file and
-pregenerated Matter source code. The base recipe manages integration and build
-logic, while client customizations define device-specific Matter configurations
-and generated files.
+This recipe builds the Matter SDK for use by Barton, providing the base
+implementation for integrating Matter with the Barton IoT Platform in Yocto-based
+RDK environments. It is designed to be extended by client layers using bbappend
+files, allowing each product to supply its own ZAP file and pregenerated Matter
+source code. The base recipe manages integration and build logic, while client
+customizations define device-specific Matter configurations and generated files.
 
 ## Barton Matter Example
 The `barton-matter-example` recipe serves as a template for clients to extend
@@ -76,7 +76,7 @@ your-layer/
 └── your-barton-matter-recipe/
     ├── barton-matter_*.bbappend
     └── files/
-        └── barton.zap
+        └── your-zap-file.zap
 ```
 
 Then run the `generate_zzz.sh` script and pass the path to your recipe directory
@@ -107,7 +107,7 @@ example-layer/
     └── barton-matter/
         ├── barton-matter_x.y.z.bbappend
         └── files/
-            ├── barton.zap
+            ├── your-zap-file.zap
             └── zzz_generated.tar.gz
 ```
 

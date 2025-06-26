@@ -11,32 +11,37 @@
 
 HERE=$(realpath $(dirname $0))
 
-SDK_ROOT=$(realpath $HERE/../../../)
-BARTON_ROOT=$SDK_ROOT/third_party/barton
-BARTON_ZAP=$BARTON_ROOT/barton.zap
+SDK_ROOT=$(realpath ${HERE}/../../../)
+BARTON_ROOT=${SDK_ROOT}/third_party/barton
+
+ZAP_FILE=$(find "${BARTON_ROOT}" -maxdepth 1 -name "*.zap" | head -n 1)
+if [ -z "${ZAP_FILE}" ]; then
+    echo "ERROR: No ZAP file found in ${BARTON_ROOT}."
+    exit 1
+fi
 
 set -e
 source ${SDK_ROOT}/scripts/activate.sh
 
-pushd $BARTON_ROOT
+pushd ${BARTON_ROOT}
 
-ln -s -f $SDK_ROOT/src/app/zap-templates/zcl/data-model/
+ln -s -f ${SDK_ROOT}/src/app/zap-templates/zcl/data-model/
 
 popd
 
 # This script utilizes the Matter SDK ZCL (Zigbee Cluster Library) for its operations.
 # TODO: Update implementation to support custom clusters in addition to the Matter SDK ZCL.
-zap-cli convert -z $SDK_ROOT/src/app/zap-templates/zcl/zcl.json -o $BARTON_ZAP $BARTON_ZAP
-rm $BARTON_ROOT/barton.zap~
+zap-cli convert -z ${SDK_ROOT}/src/app/zap-templates/zcl/zcl.json -o ${ZAP_FILE} ${ZAP_FILE}
+rm ${ZAP_FILE}~
 
-${SDK_ROOT}/scripts/tools/zap/generate.py $BARTON_ZAP
+${SDK_ROOT}/scripts/tools/zap/generate.py ${ZAP_FILE}
 
 # Always clobber the generated output; generators may change output
 # filenames, etc, leaving unwanted cruft. Let SCM keep track of
 # what's what.
-rm -rf $BARTON_ROOT/zzz_generated
+rm -rf ${BARTON_ROOT}/zzz_generated
 
 ${SDK_ROOT}/scripts/codepregen.py \
-    --external-root $SDK_ROOT $BARTON_ROOT/zzz_generated \
+    --external-root ${SDK_ROOT} ${BARTON_ROOT}/zzz_generated \
     --log-level info \
     --input-glob "*barton*" --input-glob "*controller-clusters*"

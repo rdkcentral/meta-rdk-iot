@@ -37,29 +37,17 @@ OECMAKE_GENERATOR="Unix Makefiles"
 
 OECMAKE_SOURCEPATH = "${S}/third_party/barton/"
 
-# Regarding the Matter configuration directory:
-# This reference implementation is set to /tmp to align with Matter's default
-# for Linux platforms.
-# NOTE TO IMPLEMENTERS: For production deployments, change this to a
-# device-specific persistent storage location that survives reboots.
-# Examples:
-#  - /nvram/barton
-#  - /etc/barton
-#  - /var/lib/barton
-# The chosen directory must be writable and must persist across reboots to maintain
-# Matter device credentials and configuration state.
-EXTRA_OECMAKE = "\
-    -DMATTER_CONF_DIR=/tmp \
-"
-
 # These are intentionally undefined in the base recipe and must be provided by
 # the client in a bbappend
 MATTER_ZAP_FILE ?= ""
 MATTER_ZZZ_GENERATED ?= ""
+MATTER_CONF_DIR ?= ""
+EXTRA_OECMAKE += "-DMATTER_CONF_DIR=${MATTER_CONF_DIR}"
 
 python do_check_matter_configuration() {
     zap_file = d.getVar('MATTER_ZAP_FILE')
     zzz_generated = d.getVar('MATTER_ZZZ_GENERATED')
+    conf_dir = d.getVar('MATTER_CONF_DIR')
     project_custom = d.getVar('MATTER_CUSTOM_PROJECT_CONFIG')
 
     error_msg = []
@@ -70,6 +58,9 @@ python do_check_matter_configuration() {
 
     if not zzz_generated:
         error_msg.append("MATTER_ZZZ_GENERATED is not defined")
+
+    if not conf_dir:
+        error_msg.append("MATTER_CONF_DIR is not defined")
 
     if not project_custom:
         warn_msg.append("MATTER_CUSTOM_PROJECT_CONFIG is not defined, continuing with defaults.")
@@ -93,6 +84,7 @@ addtask check_matter_configuration before do_configure
 do_configure_prepend() {
     mkdir -p ${S}/third_party/barton
     cp -r ${THISDIR}/files/. ${S}/third_party/barton/
+
     # Copy the client's Matter configuration files provided in the bbappend
     cp ${MATTER_ZAP_FILE} ${S}/third_party/barton/
     cp -r ${MATTER_ZZZ_GENERATED} ${S}/third_party/barton/

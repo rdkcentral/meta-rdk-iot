@@ -1,0 +1,15 @@
+diff --git a/core/CMakeLists.txt b/core/CMakeLists.txt
+index 75ca826..f0e6a3d 100644
+--- a/core/CMakeLists.txt
++++ b/core/CMakeLists.txt
+@@ -189,6 +189,10 @@ target_include_directories(brtnDeviceServiceStatic PRIVATE
+ install(TARGETS brtnDeviceServiceStatic DESTINATION lib)
+ 
+ add_library(brtnDeviceServiceShared SHARED $<TARGET_OBJECTS:brtnDeviceServiceObject>)
++set_target_properties(brtnDeviceServiceShared PROPERTIES
++    VERSION 1.0
++    SOVERSION 1
++)
+ target_link_libraries(brtnDeviceServiceShared ${btnDSLinkLibraries})
+ target_include_directories(brtnDeviceServiceShared PRIVATE
+                             ${CMAKE_CURRENT_SOURCE_DIR}/src

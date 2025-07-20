@@ -1,0 +1,44 @@
+diff --git a/config/cmake/DependencyVersions.cmake b/config/cmake/DependencyVersions.cmake
+index 704b1ee..2568bd1 100644
+--- a/config/cmake/DependencyVersions.cmake
++++ b/config/cmake/DependencyVersions.cmake
+@@ -36,8 +36,10 @@ set(OPENSSL_MIN_VERSION 1.1.1l)
+ set(OPENSSL_MAX_VERSION 1.1.1v)
+ set(UUID_MIN_VERSION 1.0.3)
+ set(XML_MIN_VERSION 2.9.8)
+-set(MBEDCRYPTO_MIN_VERSION 2.28.4)
+-set(LIBCERTIFIER_MIN_VERSION 2.2.2)
++# set(MBEDCRYPTO_MIN_VERSION 2.28.4)
++# set(LIBCERTIFIER_MIN_VERSION 2.2.2)
++set(MBEDCRYPTO_MIN_VERSION 2.16.3)
++set(LIBCERTIFIER_MIN_VERSION 2.2.1)
+ 
+ # We depend on dbus client library and some headers but versioning may not
+ # exist for those, so we'll just let the linker find it and pray it
+diff --git a/config/cmake/options.cmake b/config/cmake/options.cmake
+index 63cddfb..90850be 100644
+--- a/config/cmake/options.cmake
++++ b/config/cmake/options.cmake
+@@ -123,18 +123,19 @@ message(STATUS "Barton Device Service ON/OFF Configs")
+ bds_option(NAME BDS_ZIGBEE
+            DEFINITION BARTON_CONFIG_ZIGBEE
+            DESCRIPTION "Enable Zigbee support"
+-           ENABLE)
++           DISABLE)
+ bds_option(NAME BDS_THREAD
+            DEFINITION BARTON_CONFIG_THREAD
+            DESCRIPTION "Enable Thread support"
+-           ENABLE)
++           DISABLE)
+ bds_option(NAME BDS_MATTER
+            DEFINITION BARTON_CONFIG_MATTER
+            DESCRIPTION "Enable Matter support"
+            ENABLE)
+ bds_option(NAME BDS_PHILIPS_HUE
+            DEFINITION BARTON_CONFIG_PHILIPS_HUE
+-           DESCRIPTION "Enable Philips Hue support")
++           DESCRIPTION "Enable Philips Hue support"
++           DISABLE)
+ bds_option(NAME BDS_GEN_GIR
+            DEFINITION BARTON_CONFIG_GEN_GIR
+            DESCRIPTION "Enable generating GIR and typelib information"

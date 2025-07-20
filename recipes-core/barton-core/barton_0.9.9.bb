@@ -3,22 +3,24 @@ HOMEPAGE = "https://github.com/rdkcentral/BartonCore"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=1079582effd6f382a3fba8297d579b46"
 
-DEPENDS_append = " \
+DEPENDS += " \
     cjson \
     curl \
     dbus \
     glib-2.0 \
     barton-matter \
     mbedtls \
-    otbr-agent \
     libcertifier \
+    libxml2 \
 "
-
 RPROVIDES_${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 SRCREV = "baef4966c3d844da2f5073543f5c7cf8e394e69c"
 S = "${WORKDIR}/git"
+
+SRC_URI += "file://dependency-config-update.patch"
+SRC_URI += "file://add-so-version.patch"
 
 inherit cmake pkgconfig
 
@@ -28,8 +30,9 @@ EXTRA_OECMAKE = "\
     -DBDS_MATTER_LIB=BartonMatter \
     -DBUILD_TESTING=OFF \
 "
+EXTRA_OECMAKE += "-DCMAKE_PREFIX_PATH=${STAGING_DIR_TARGET}/usr"
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${includedir}/barton
 
     # Install public API headers

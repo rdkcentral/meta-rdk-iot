@@ -3,7 +3,7 @@ HOMEPAGE = "https://github.com/rdkcentral/BartonCore"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=1079582effd6f382a3fba8297d579b46"
 
-DEPENDS_append = " \
+DEPENDS:append = " \
     cjson \
     curl \
     dbus \
@@ -29,7 +29,7 @@ EXTRA_OECMAKE = "\
     -DBUILD_TESTING=OFF \
 "
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${includedir}/barton
 
     # Install public API headers

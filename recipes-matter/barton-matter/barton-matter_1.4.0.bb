@@ -3,7 +3,7 @@ HOMEPAGE = "https://github.com/project-chip/connectedhomeip"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
-DEPENDS_append = " \
+DEPENDS:append = " \
     glib-2.0 \
     curl \
     openssl \
@@ -81,7 +81,7 @@ See barton-matter-example directory for an example implementation.
 
 addtask check_matter_configuration before do_configure
 
-do_configure_prepend() {
+do_configure:prepend() {
     mkdir -p ${S}/third_party/barton
     cp -r ${THISDIR}/files/. ${S}/third_party/barton/
     # Copy the client's Matter configuration files provided in the bbappend

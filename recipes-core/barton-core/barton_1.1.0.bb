@@ -17,15 +17,14 @@ DEPENDS_append = " \
 RPROVIDES_${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
-SRCREV = "3968e1610304326a31e2f94078e6891ccad6efa6"
+SRCREV = "908d8ab4625a4377918dc44e23e9402452ffa0bc"
 S = "${WORKDIR}/git"
 
 inherit cmake pkgconfig
 
 EXTRA_OECMAKE = "\
-    -DBDS_BUILD_REFERENCE=OFF \
-    -DBDS_GEN_GIR=OFF \
-    -DBDS_MATTER_LIB=BartonMatter \
+    -DBCORE_BUILD_REFERENCE=OFF \
+    -DBCORE_GEN_GIR=OFF \
     -DBUILD_TESTING=OFF \
 "
 
@@ -42,7 +41,7 @@ do_install_append() {
 }
 
 # Define what goes in the main runtime package
-FILES_${PN} = "${libdir}/libbrtnDeviceServiceShared.so.*"
+FILES_${PN} = "${libdir}/libBartonCore.so.*"
 
 # Ensure the dev package contains the public API headers
 FILES_${PN}-dev += "${includedir}/barton/"

@@ -1,7 +1,7 @@
 DESCRIPTION = "Example Barton Application"
 HOMEPAGE = "https://github.com/rdkcentral/BartonCore"
-LICENSE = "CLOSED"
-LIC_FILES_CHKSUM = ""
+LICENSE = "Apache-2.0"
+LIC_FILES_CHKSUM = "file://src/LICENSE;md5=53d2c7a55cf4747a35039904f1dadffd"
 
 DEPENDS:append = " \
     barton \

@@ -34,14 +34,16 @@
         "code": 22,
         "profileId": 259,
         "label": "MA-rootdevice",
-        "name": "MA-rootdevice"
+        "name": "MA-rootdevice",
+        "deviceTypeOrder": 0
       },
       "deviceTypes": [
         {
           "code": 22,
           "profileId": 259,
           "label": "MA-rootdevice",
-          "name": "MA-rootdevice"
+          "name": "MA-rootdevice",
+          "deviceTypeOrder": 0
         }
       ],
       "deviceVersions": [
@@ -353,24 +355,6 @@
           "define": "ACCESS_CONTROL_CLUSTER",
           "side": "server",
           "enabled": 1,
-          "commands": [
-            {
-              "name": "ReviewFabricRestrictions",
-              "code": 0,
-              "mfgCode": null,
-              "source": "client",
-              "isIncoming": 1,
-              "isEnabled": 1
-            },
-            {
-              "name": "ReviewFabricRestrictionsResponse",
-              "code": 1,
-              "mfgCode": null,
-              "source": "server",
-              "isIncoming": 0,
-              "isEnabled": 1
-            }
-          ],
           "attributes": [
             {
               "name": "ACL",
@@ -442,38 +426,6 @@
               "mfgCode": null,
               "side": "server",
               "type": "int16u",
-              "included": 1,
-              "storageOption": "External",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": null,
-              "reportable": 1,
-              "minInterval": 1,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            },
-            {
-              "name": "CommissioningARL",
-              "code": 5,
-              "mfgCode": null,
-              "side": "server",
-              "type": "array",
-              "included": 1,
-              "storageOption": "External",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": null,
-              "reportable": 1,
-              "minInterval": 1,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            },
-            {
-              "name": "ARL",
-              "code": 6,
-              "mfgCode": null,
-              "side": "server",
-              "type": "array",
               "included": 1,
               "storageOption": "External",
               "singleton": 0,
@@ -558,7 +510,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "3",
+              "defaultValue": "1",
               "reportable": 1,
               "minInterval": 1,
               "maxInterval": 65534,
@@ -579,15 +531,6 @@
               "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
-            }
-          ],
-          "events": [
-            {
-              "name": "FabricRestrictionReviewUpdate",
-              "code": 2,
-              "mfgCode": null,
-              "side": "server",
-              "included": 1
             }
           ]
         },
@@ -1165,7 +1108,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "1",
+              "defaultValue": "2",
               "reportable": 1,
               "minInterval": 1,
               "maxInterval": 65534,
@@ -1278,22 +1221,6 @@
               "reportableChange": 0
             },
             {
-              "name": "SupportedThreadFeatures",
-              "code": 9,
-              "mfgCode": null,
-              "side": "server",
-              "type": "ThreadCapabilitiesBitmap",
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "9",
-              "reportable": 1,
-              "minInterval": 1,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            },
-            {
               "name": "GeneratedCommandList",
               "code": 65528,
               "mfgCode": null,
@@ -1367,7 +1294,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "7",
+              "defaultValue": "4",
               "reportable": 1,
               "minInterval": 1,
               "maxInterval": 65534,
@@ -1383,7 +1310,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "1",
+              "defaultValue": "2",
               "reportable": 1,
               "minInterval": 1,
               "maxInterval": 65534,
@@ -1957,7 +1884,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "2",
+              "defaultValue": "3",
               "reportable": 1,
               "minInterval": 1,
               "maxInterval": 65534,
@@ -2958,14 +2885,16 @@
         "code": 144,
         "profileId": 259,
         "label": "MA-network-infrastructure-manager",
-        "name": "MA-network-infrastructure-manager"
+        "name": "MA-network-infrastructure-manager",
+        "deviceTypeOrder": 0
       },
       "deviceTypes": [
         {
           "code": 144,
           "profileId": 259,
           "label": "MA-network-infrastructure-manager",
-          "name": "MA-network-infrastructure-manager"
+          "name": "MA-network-infrastructure-manager",
+          "deviceTypeOrder": 0
         }
       ],
       "deviceVersions": [
@@ -3463,14 +3392,6 @@
             {
               "name": "SetActiveDatasetRequest",
               "code": 3,
-              "mfgCode": null,
-              "source": "client",
-              "isIncoming": 1,
-              "isEnabled": 1
-            },
-            {
-              "name": "SetPendingDatasetRequest",
-              "code": 4,
               "mfgCode": null,
               "source": "client",
               "isIncoming": 1,

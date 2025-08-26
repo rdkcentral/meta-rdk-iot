@@ -23,11 +23,11 @@ inherit cmake pkgconfig
 # These options provide a convenient facade in front of bitbake dependency management. A client
 # can choose to just overwrite EXTRA_OECMAKE options directly if they wish but must be mindful of
 # dependencies.
-BARTON_BUILD_MATTER?="OFF"
-BARTON_BUILD_THREAD?="OFF"
-BARTON_BUILD_ZILKER?="OFF"
-BARTON_GEN_GIR?="OFF"
-BARTON_BUILD_TESTS?="OFF"
+BARTON_BUILD_MATTER ?= "OFF"
+BARTON_BUILD_THREAD ?= "OFF"
+BARTON_BUILD_ZILKER ?= "OFF"
+BARTON_GEN_GIR ?= "OFF"
+BARTON_BUILD_TESTS ?= "OFF"
 EXTRA_OECMAKE = "\
     -DBCORE_BUILD_REFERENCE=OFF \
     -DBCORE_GEN_GIR=${BARTON_GEN_GIR} \

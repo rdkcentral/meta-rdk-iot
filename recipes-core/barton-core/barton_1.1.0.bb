@@ -38,7 +38,7 @@ EXTRA_OECMAKE = "\
     -DBCORE_ZIGBEE=${BARTON_BUILD_ZIGBEE} \
 "
 
-DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', 'barton-matter', '', d)}"
+DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', 'barton-matter libcertifier', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', 'otbr-agent', '', d)}"
 RDEPENDS_${PN}:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', 'otbr-agent', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_TESTS', 'ON', 'cmocka gtest', '', d)}"

@@ -1,7 +1,7 @@
 # Example customization for barton-matter
 # This shows how to customize the Matter configuration for your specific product
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
     file://barton.zap \
@@ -13,5 +13,5 @@ MATTER_ZAP_FILE = "${WORKDIR}/barton.zap"
 MATTER_ZZZ_GENERATED = "${WORKDIR}/zzz_generated"
 
 # Set persistent storage location for production use
-EXTRA_OECMAKE_remove = "-DMATTER_CONF_DIR=/tmp"
+EXTRA_OECMAKE:remove = "-DMATTER_CONF_DIR=/tmp"
 EXTRA_OECMAKE += "-DMATTER_CONF_DIR=/var/lib/my-product"

@@ -3,7 +3,7 @@ HOMEPAGE = "https://github.com/rdkcentral/BartonCore"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=1079582effd6f382a3fba8297d579b46"
 
-DEPENDS_append = " \
+DEPENDS:append = " \
     cjson \
     curl \
     dbus \
@@ -17,19 +17,18 @@ DEPENDS_append = " \
 RPROVIDES_${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
-SRCREV = "baef4966c3d844da2f5073543f5c7cf8e394e69c"
+SRCREV = "908d8ab4625a4377918dc44e23e9402452ffa0bc"
 S = "${WORKDIR}/git"
 
 inherit cmake pkgconfig
 
 EXTRA_OECMAKE = "\
-    -DBDS_BUILD_REFERENCE=OFF \
-    -DBDS_GEN_GIR=OFF \
-    -DBDS_MATTER_LIB=BartonMatter \
+    -DBCORE_BUILD_REFERENCE=OFF \
+    -DBCORE_GEN_GIR=OFF \
     -DBUILD_TESTING=OFF \
 "
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${includedir}/barton
 
     # Install public API headers
@@ -42,7 +41,7 @@ do_install_append() {
 }
 
 # Define what goes in the main runtime package
-FILES_${PN} = "${libdir}/libbrtnDeviceServiceShared.so.*"
+FILES_${PN} = "${libdir}/libBartonCore.so.*"
 
 # Ensure the dev package contains the public API headers
 FILES_${PN}-dev += "${includedir}/barton/"

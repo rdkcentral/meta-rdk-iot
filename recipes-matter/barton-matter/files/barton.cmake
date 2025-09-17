@@ -34,6 +34,7 @@ function(barton_build MATTER_CONF_DIR)
     execute_process(COMMAND ${CMAKE_CURRENT_LIST_DIR}/activate.sh)
 
     configure_file(${CMAKE_CURRENT_LIST_DIR}/BartonProjectConfig.in BartonProjectConfig.h @ONLY)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/BartonProjectConfigCustom.in BartonProjectConfigCustom.h @ONLY)
 
     matter_common_gn_args(
         DEBUG       CONFIG_CHIP_DEBUG
@@ -81,7 +82,7 @@ function(barton_build MATTER_CONF_DIR)
     matter_add_gn_arg_bool("chip_system_config_use_lwip" false)
     matter_add_gn_arg_bool("chip_system_config_use_sockets" true)
     matter_add_gn_arg_bool("chip_with_lwip" false)
-    matter_add_gn_arg_bool("chip_enable_access_restrictions" true)
+    matter_add_gn_arg_bool("chip_enable_access_restrictions" false)
 
     matter_generate_args_tmp_file()
 
@@ -92,8 +93,8 @@ function(barton_build MATTER_CONF_DIR)
     set(MATTER_HEADER_DESTINATION include/matter)
 
     get_target_property(MATTER_INCLUDE_DIRECTORIES ${BARTON_MATTER_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
-    list(APPEND MATTER_INCLUDE_DIRECTORIES ${MATTER_ROOT}/third_party/barton/zzz_generated/third_party/barton/barton/zap/app-templates)
-    list(APPEND MATTER_INCLUDE_DIRECTORIES ${MATTER_ROOT}/third_party/inipp/repo/inipp)
+    list(APPEND MATTER_INCLUDE_DIRECTORIES "${MATTER_ROOT}/third_party/barton/zzz_generated/third_party/barton/barton/zap/app-templates")
+    list(APPEND MATTER_INCLUDE_DIRECTORIES "${MATTER_ROOT}/third_party/inipp/repo/inipp")
 
     foreach(MATTER_INCLUDE_DIR ${MATTER_INCLUDE_DIRECTORIES})
 
@@ -111,6 +112,7 @@ function(barton_build MATTER_CONF_DIR)
     install(FILES ${MATTER_LIBRARIES} DESTINATION lib)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib/libBartonMatter.a DESTINATION lib)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/BartonProjectConfig.h DESTINATION ${MATTER_HEADER_DESTINATION})
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/BartonProjectConfigCustom.h DESTINATION ${MATTER_HEADER_DESTINATION})
 
     file(GLOB_RECURSE BARTON_HEADERS ${MATTER_ROOT}/third_party/barton/*.h*)
     install(FILES ${BARTON_HEADERS} DESTINATION ${MATTER_HEADER_DESTINATION})

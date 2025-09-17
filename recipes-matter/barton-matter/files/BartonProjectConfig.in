@@ -49,6 +49,8 @@
 #define LOCALSTATEDIR CHIP_BARTON_CONF_DIR // CHIP Counters Config
 #define CHIP_CONFIG_KVS_PATH CHIP_BARTON_CONF_DIR "/matterkv"
 
+#include "BartonProjectConfigCustom.h"
+
 // ------------------------------------
 
 #endif /* CHIPPROJECTCONFIG_H */

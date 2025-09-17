@@ -1,0 +1,104 @@
+From d05080c3ac1fe21b2613a55d73339689949528ca Mon Sep 17 00:00:00 2001
+From: Thomas Lea <thomas_lea@comcast.com>
+Date: Wed, 25 Jun 2025 07:45:09 -0500
+Subject: [PATCH] Fix GetPrimary802154MACAddress on Linux platform
+
+ot-br-posix defines the ExtendedAddress property to not emit signals
+on d-bus when it changes. This means the generated introspection code
+that uses a caching proxy will not load its value and will always
+return NULL. Instead we must not use the caching proxy and do a true
+Get to retrieve this value, which we do only once and cache ourselves.
+
+Change-Id: Ia2036bf4ba20e9c17427c7f9340a967282420f8f
+---
+ src/platform/Linux/ThreadStackManagerImpl.cpp | 57 +++++++++++++++++--
+ src/platform/Linux/ThreadStackManagerImpl.h   |  1 +
+ 2 files changed, 54 insertions(+), 4 deletions(-)
+
+diff --git a/src/platform/Linux/ThreadStackManagerImpl.cpp b/src/platform/Linux/ThreadStackManagerImpl.cpp
+index 76fd478a05..05dc46a581 100644
+--- a/src/platform/Linux/ThreadStackManagerImpl.cpp
++++ b/src/platform/Linux/ThreadStackManagerImpl.cpp
+@@ -546,14 +546,63 @@ CHIP_ERROR ThreadStackManagerImpl::_GetAndLogThreadTopologyFull()
+ CHIP_ERROR ThreadStackManagerImpl::_GetPrimary802154MACAddress(uint8_t * buf)
+ {
+     VerifyOrReturnError(mProxy, CHIP_ERROR_INCORRECT_STATE);
+-    guint64 extAddr = openthread_io_openthread_border_router_get_extended_address(mProxy.get());
+ 
+-    for (size_t i = 0; i < sizeof(extAddr); i++)
++    // if mExtendedAddress is all zeros we must directly read it from the otbr-agent since its d-bus
++    // interface defined EmitsChangedSignal as false which prevents the cached proxy support available
++    // via openthread_io_openthread_border_router_get_extended_address
++    if (std::all_of(mExtendedAddress, mExtendedAddress + sizeof(mExtendedAddress),
++                     [](uint8_t v) { return v == 0; }))
+     {
+-        buf[sizeof(uint64_t) - i - 1] = (extAddr & UINT8_MAX);
+-        extAddr >>= CHAR_BIT;
++        GAutoPtr<GError> err;
++        GAutoPtr<GVariant> response(g_dbus_proxy_call_sync(G_DBUS_PROXY(mProxy.get()), "org.freedesktop.DBus.Properties.Get",
++                                                           g_variant_new("(ss)", "io.openthread.BorderRouter", "ExtendedAddress"),
++                                                           G_DBUS_CALL_FLAGS_NONE, -1, nullptr, &err.GetReceiver()));
++
++        if (err)
++        {
++            ChipLogError(DeviceLayer, "failed to read ExtendedAddress property: %s", err->message);
++            return CHIP_ERROR_INTERNAL;
++        }
++
++        if (response == nullptr)
++        {
++            ChipLogError(DeviceLayer, "failed to get a response for ExtendedAddress property");
++            return CHIP_ERROR_INTERNAL;
++        }
++
++        GAutoPtr<GVariant> tupleContent(g_variant_get_child_value(response.get(), 0));
++
++        if (tupleContent == nullptr)
++        {
++            ChipLogError(DeviceLayer, "failed to find tuple in ExtendedAddress response");
++            return CHIP_ERROR_INTERNAL;
++        }
++
++        GAutoPtr<GVariant> value(g_variant_get_variant(tupleContent.get()));
++
++        if (value == nullptr)
++        {
++            ChipLogError(DeviceLayer, "failed to find tuple value in ExtendedAddress response");
++            return CHIP_ERROR_INTERNAL;
++        }
++
++        if (g_variant_is_of_type(value.get(), G_VARIANT_TYPE_UINT64))
++        {
++            guint64 address_value = g_variant_get_uint64(value.get());
++            for (size_t i = 0; i < sizeof(address_value); i++)
++            {
++                mExtendedAddress[sizeof(mExtendedAddress) - i - 1] = (address_value & UINT8_MAX);
++                address_value >>= CHAR_BIT;
++            }
++        }
++        else
++        {
++            ChipLogError(DeviceLayer, "ERROR: Property 'ExtendedAddress' returned unexpected type: %s",
++                    g_variant_get_type_string(value.get()));
++        }
+     }
+ 
++    memcpy(buf, mExtendedAddress, sizeof(mExtendedAddress));
+     return CHIP_NO_ERROR;
+ }
+ 
+diff --git a/src/platform/Linux/ThreadStackManagerImpl.h b/src/platform/Linux/ThreadStackManagerImpl.h
+index 685348a4ae..63840bc0e9 100755
+--- a/src/platform/Linux/ThreadStackManagerImpl.h
++++ b/src/platform/Linux/ThreadStackManagerImpl.h
+@@ -165,6 +165,7 @@ private:
+     NetworkCommissioning::Internal::BaseDriver::NetworkStatusChangeCallback * mpStatusChangeCallback = nullptr;
+ 
+     bool mAttached;
++    uint8_t mExtendedAddress[8];
+ };
+ 
+ inline void ThreadStackManagerImpl::_OnThreadAttachFinished(void)
+-- 
+2.43.0
+

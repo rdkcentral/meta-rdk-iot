@@ -1,0 +1,66 @@
+name: "Start Release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'Release name (e.g., 1.0)'
+        required: true
+        type: string
+
+jobs:
+  start-release:
+    name: "Create Release Branch"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          ref: develop
+      
+      - name: Install git-flow
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-flow
+      
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      
+      - name: Initialize git-flow
+        run: |
+          # Initialize git-flow with default settings
+          git flow init -d
+      
+      - name: Validate release name
+        run: |
+          RELEASE_NAME="${{ github.event.inputs.release_name }}"
+          if [[ ! "$RELEASE_NAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "Error: Release name contains invalid characters. Only alphanumeric, dots, hyphens, and underscores are allowed."
+            exit 1
+          fi
+          echo "Release name is valid: $RELEASE_NAME"
+      
+      - name: Check if release branch already exists
+        run: |
+          RELEASE_BRANCH="release/${{ github.event.inputs.release_name }}"
+          if git show-ref --verify --quiet refs/remotes/origin/$RELEASE_BRANCH; then
+            echo "Error: Release branch $RELEASE_BRANCH already exists"
+            exit 1
+          fi
+          echo "Release branch $RELEASE_BRANCH does not exist, proceeding..."
+      
+      - name: Start git-flow release
+        run: |
+          echo "🚀 Starting git-flow release: ${{ github.event.inputs.release_name }}"
+          git flow release start ${{ github.event.inputs.release_name }}
+          
+          # Push the release branch to remote
+          git push -u origin release/${{ github.event.inputs.release_name }}
+          
+          echo "✅ Release branch release/${{ github.event.inputs.release_name }} created successfully"
+          echo "🔗 Branch URL: ${{ github.server_url }}/${{ github.repository }}/tree/release/${{ github.event.inputs.release_name }}"

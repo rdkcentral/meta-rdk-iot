@@ -1,5 +1,5 @@
 SUMMARY = "linenoise library"
-DESCRIPTION = "Recipe to build library for linenoise"
+DESCRIPTION = "Recipe to build updated linenoise for barton only"
 HOMEPAGE = "https://github.com/antirez/linenoise"
 
 LICENSE = "BSD-2-Clause"

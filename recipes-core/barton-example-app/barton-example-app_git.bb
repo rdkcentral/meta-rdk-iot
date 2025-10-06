@@ -49,7 +49,7 @@ OECMAKE_SOURCEPATH = "${S}/reference"
 #
 # CMAKE_C[XX]_FLAGS: The reference app assumes "<include_dir>/barton" is a search path prefix. As a result,
 # it just includes headers like "barton-core-client.h" but not namespaces with "barton/".
-# Also, The reference app lightly uses private BartonCore libraries which we are not building as
+# Also, the reference app lightly uses private BartonCore libraries which we are not building as
 # part of this recipe. We will use a kludge to point at the header in source and then rely on the
 # symbols availability in the BartonCore library.
 # Also need to define _GNU_SOURCE for non-portable defines like PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP

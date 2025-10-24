@@ -6,6 +6,8 @@
 declare_args() {
   pw_env_setup_CIPD_PIGWEED = ""
   pw_env_setup_CIPD_ARM = ""
+  pw_env_setup_CIPD_ZAP = ""
+  pw_env_setup_PACKAGE_ROOT = ""
   pw_env_setup_CIPD_PYTHON = ""
   pw_env_setup_VIRTUAL_ENV = ""
 }

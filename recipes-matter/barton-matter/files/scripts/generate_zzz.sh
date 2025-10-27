@@ -4,8 +4,8 @@
 # and creates a tarball in the specified output directory.
 # 
 # The script requires Docker and expects:
-# 1. A path to a .zap file (must be located in a 'files/' directory)
-# 2. Write permissions for the 'files/' directory where output will be placed
+# 1. A path to a .zap file
+# 2. Write permissions for the directory where output will be placed
 #
 # For full documentation, see the Pregenerated Code section of the README.md file
 # in the barton-matter recipe.
@@ -26,7 +26,7 @@ Options:
   -r, --revision <revision>     Select a specific revision of the SDK to use. You should select the matter version you want to build against.
 
 Arguments:
-  <zap-file-path>   Full path to the ZAP file (must be in a files/ directory)
+  <zap-file-path>   Full path to the ZAP file
 EOF
 }
 
@@ -63,12 +63,7 @@ if [ ! -f "${ZAP_FILE}" ]; then
 fi
 
 # Infer output directory from ZAP file path
-# The ZAP file must be in a files/ directory
-OUTPUT_FILES_DIR=$(dirname "${ZAP_FILE}")
-if [[ "${OUTPUT_FILES_DIR}" != */files ]]; then
-    echo "ERROR: ZAP file must be in a directory named 'files/'"
-    exit 1
-fi
+OUTPUT_DIR=$(dirname "${ZAP_FILE}")
 
 if [ -z ${REVISION} ]; then
     echo "ERROR: You must specify a revision using the -r option. Use the revision of matter you plan to build against."
@@ -118,8 +113,8 @@ docker run --rm \
     /tmp/connectedhomeip/third_party/barton/scripts/pregenerate.sh
 
 if [ -d third_party/barton/zzz_generated ]; then
-    rm -f ${OUTPUT_FILES_DIR}/zzz_generated.tar.gz
-    tar -czf ${OUTPUT_FILES_DIR}/zzz_generated.tar.gz \
+    rm -f ${OUTPUT_DIR}/zzz_generated.tar.gz
+    tar -czf ${OUTPUT_DIR}/zzz_generated.tar.gz \
         -C third_party/barton \
         zzz_generated
 else
@@ -130,7 +125,7 @@ fi
 ZAP_FILE_BASENAME=$(basename ${ZAP_FILE})
 MATTER_IDL_FILE=${ZAP_FILE_BASENAME%.*}.matter
 if [ -f "third_party/barton/${MATTER_IDL_FILE}" ]; then
-    cp third_party/barton/${MATTER_IDL_FILE} ${OUTPUT_FILES_DIR}
+    cp third_party/barton/${MATTER_IDL_FILE} ${OUTPUT_DIR}
 else
     echo "Error: failed to create or find ${MATTER_IDL_FILE} IDL file (it should come from \$SDK/scripts/tools/zap/generate.py)"
     exit 1

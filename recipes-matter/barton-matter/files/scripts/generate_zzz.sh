@@ -64,10 +64,6 @@ fi
 
 # Infer output directory from ZAP file path
 OUTPUT_DIR=$(dirname "${ZAP_FILE}")
-# if [[ "${OUTPUT_DIR}" != */files ]]; then
-#     echo "ERROR: ZAP file must be in a directory named 'files/'"
-#     exit 1
-# fi
 
 if [ -z ${REVISION} ]; then
     echo "ERROR: You must specify a revision using the -r option. Use the revision of matter you plan to build against."

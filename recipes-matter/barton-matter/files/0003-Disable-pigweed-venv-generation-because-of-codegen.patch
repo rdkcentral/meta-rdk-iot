@@ -1,0 +1,43 @@
+From 15bfa482ceba08887dead6061fa098090c57119e Mon Sep 17 00:00:00 2001
+From: Christian Leithner <christian_leithner@comcast.com>
+Date: Thu, 23 Oct 2025 19:34:01 +0000
+Subject: [PATCH 3/3] Disable pigweed venv generation because of codegen
+
+Codegen calls down into pw python execution helper
+(template called pw_python_action) which will attempt
+to create a pigweed venv by default. This exposes an
+internal flag to disable that venv generation up to higher
+levels.
+---
+ build/chip/chip_codegen.gni | 2 ++
+ src/app/chip_data_model.gni | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/build/chip/chip_codegen.gni b/build/chip/chip_codegen.gni
+index 4f812488..ee4d7e90 100644
+--- a/build/chip/chip_codegen.gni
++++ b/build/chip/chip_codegen.gni
+@@ -314,6 +314,8 @@ template("chip_codegen") {
+     pw_python_action("${_name}_generate") {
+       script = "${chip_root}/scripts/copyfiles.py"
+ 
++      _pw_internal_run_in_venv = invoker._pw_internal_run_in_venv
++
+       # Figure out what paths this IDL would generate/need
+       _path_get_args = [
+         "--idl",
+diff --git a/src/app/chip_data_model.gni b/src/app/chip_data_model.gni
+index 7a4f44e1..73c31819 100644
+--- a/src/app/chip_data_model.gni
++++ b/src/app/chip_data_model.gni
+@@ -92,6 +92,7 @@ template("chip_data_model") {
+   chip_codegen("${_data_model_name}_codegen") {
+     input = _idl
+     generator = "cpp-app"
++    _pw_internal_run_in_venv = invoker._pw_internal_run_in_venv
+ 
+     outputs = [
+       "app/PluginApplicationCallbacks.h",
+-- 
+2.25.1
+

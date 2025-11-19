@@ -17,7 +17,7 @@ RPROVIDES_${PN} += "barton"
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 SRCREV = "bdb58a588a370f202bcffb24664323576133f57e"
 S = "${WORKDIR}/git"
-PR = "r1"
+PR = "r2"
 
 inherit cmake pkgconfig
 
@@ -40,7 +40,7 @@ EXTRA_OECMAKE = "\
 "
 
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', ' barton-linenoise', '', d)}"
-DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', ' barton-matter jsoncpp', '', d)}"
+DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', ' barton-matter_1.4.0 jsoncpp', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
 RDEPENDS_${PN}:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_TESTS', 'ON', ' cmocka gtest', '', d)}"

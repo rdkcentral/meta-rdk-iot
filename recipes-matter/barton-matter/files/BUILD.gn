@@ -9,6 +9,7 @@ import("${chip_root}/src/app/chip_data_model.gni")
 chip_data_model("barton-data-model") {
   zap_file = "barton.zap"
   is_server =  true
+  _pw_internal_run_in_venv = false
 }
 
 # Dependency order for the server is _very_ important here.
@@ -19,15 +20,18 @@ chip_data_model("barton-data-model") {
 # will get the noop default instaed of the real InitDataModelHandler
 # even though it was previously defined as a strong symbol.
 static_library("barton") {
-  deps = [
+    public_deps = [
+    ":barton-data-model",
+    "//src/app/server",
+    "//src/controller",
     "//src/credentials:default_attestation_verifier",
     "//src/credentials:file_attestation_trust_store",
     "//src/lib",
+    "//src/platform/logging:default",
     "//src/protocols",
     "//src/setup_payload",
-    "//src/app/server",
-    ":barton-data-model",
-    "${chip_root}/src/platform/logging:default"
+    "${chip_root}/src/crypto",
+    "${chip_root}/third_party/jsoncpp"
   ]
 
   output_name = "libBartonMatter"

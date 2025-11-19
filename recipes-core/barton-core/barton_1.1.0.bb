@@ -17,7 +17,7 @@ RPROVIDES_${PN} += "barton"
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 SRCREV = "908d8ab4625a4377918dc44e23e9402452ffa0bc"
 S = "${WORKDIR}/git"
-PR = "r2"
+PR = "r3"
 
 inherit cmake pkgconfig
 
@@ -38,7 +38,7 @@ EXTRA_OECMAKE = "\
     -DBCORE_ZIGBEE=${BARTON_BUILD_ZIGBEE} \
 "
 
-DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', ' barton-matter libcertifier', '', d)}"
+DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', ' barton-matter_1.4.0 libcertifier', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
 RDEPENDS_${PN}:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_TESTS', 'ON', ' cmocka gtest', '', d)}"

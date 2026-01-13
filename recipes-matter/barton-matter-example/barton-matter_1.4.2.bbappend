@@ -1,6 +1,9 @@
 # Example customization for barton-matter
 # This shows how to customize the Matter configuration for your specific product
 
+# increment when changing anything in this bbappend
+PR:append = ".1"
+
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \

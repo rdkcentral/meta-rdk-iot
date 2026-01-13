@@ -1961,6 +1961,7 @@ endpoint 0 {
     callback attribute capabilityMinima;
     callback attribute specificationVersion;
     callback attribute maxPathsPerInvoke;
+    ram      attribute configurationVersion default = 1;
     callback attribute generatedCommandList;
     callback attribute acceptedCommandList;
     callback attribute attributeList;
@@ -2038,31 +2039,6 @@ endpoint 0 {
     handle command TimeSnapshotResponse;
   }
 
-  server cluster ThreadNetworkDiagnostics {
-    callback attribute channel;
-    callback attribute routingRole;
-    callback attribute networkName;
-    callback attribute panId;
-    callback attribute extendedPanId;
-    callback attribute meshLocalPrefix;
-    callback attribute neighborTable;
-    callback attribute routeTable;
-    callback attribute partitionId;
-    callback attribute weighting;
-    callback attribute dataVersion;
-    callback attribute stableDataVersion;
-    callback attribute leaderRouterId;
-    callback attribute securityPolicy;
-    callback attribute channelPage0Mask;
-    callback attribute operationalDatasetComponents;
-    callback attribute activeNetworkFaultsList;
-    callback attribute generatedCommandList;
-    callback attribute acceptedCommandList;
-    callback attribute attributeList;
-    ram      attribute featureMap default = 0;
-    ram      attribute clusterRevision default = 2;
-  }
-
   server cluster WiFiNetworkDiagnostics {
     callback attribute bssid;
     callback attribute securityType;
@@ -2123,6 +2099,9 @@ endpoint 0 {
     handle command UpdateFabricLabel;
     handle command RemoveFabric;
     handle command AddTrustedRootCertificate;
+    handle command SetVIDVerificationStatement;
+    handle command SignVIDVerificationRequest;
+    handle command SignVIDVerificationResponse;
   }
 
   server cluster GroupKeyManagement {
@@ -2167,6 +2146,33 @@ endpoint 1 {
     callback attribute attributeList;
     ram      attribute featureMap default = 0;
     ram      attribute clusterRevision default = 1;
+  }
+
+  server cluster ThreadNetworkDiagnostics {
+    callback attribute channel;
+    callback attribute routingRole;
+    callback attribute networkName;
+    callback attribute panId;
+    callback attribute extendedPanId;
+    callback attribute meshLocalPrefix;
+    callback attribute neighborTable;
+    callback attribute routeTable;
+    callback attribute partitionId;
+    callback attribute weighting;
+    callback attribute dataVersion;
+    callback attribute stableDataVersion;
+    callback attribute leaderRouterId;
+    callback attribute securityPolicy;
+    callback attribute channelPage0Mask;
+    callback attribute operationalDatasetComponents;
+    callback attribute activeNetworkFaultsList;
+    callback attribute extAddress;
+    callback attribute rloc16;
+    callback attribute generatedCommandList;
+    callback attribute acceptedCommandList;
+    callback attribute attributeList;
+    ram      attribute featureMap default = 0;
+    ram      attribute clusterRevision default = 3;
   }
 
   server cluster WiFiNetworkManagement {

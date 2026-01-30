@@ -10,6 +10,7 @@ DEPENDS:append = " \
     glib-2.0 \
     mbedtls \
     libxml2 \
+    barton-common \
 "
 
 RPROVIDES_${PN} += "barton"
@@ -37,6 +38,7 @@ EXTRA_OECMAKE = "\
     -DBCORE_MATTER=${BARTON_BUILD_MATTER} \
     -DBCORE_THREAD=${BARTON_BUILD_THREAD} \
     -DBCORE_ZIGBEE=${BARTON_BUILD_ZIGBEE} \
+    -DBCORE_BUILD_THIRD_PARTY_BARTON_COMMON=OFF \
 "
 
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', ' barton-linenoise', '', d)}"

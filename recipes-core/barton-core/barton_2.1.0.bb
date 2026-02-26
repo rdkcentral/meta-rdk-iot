@@ -12,7 +12,7 @@ DEPENDS:append = " \
     libxml2 \
 "
 
-RPROVIDES_${PN} += "barton"
+RPROVIDES:${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 SRCREV = "26554fabb1a3d7db3c258dfee20507587d56f118"
@@ -42,7 +42,7 @@ EXTRA_OECMAKE = "\
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', ' barton-linenoise', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', ' barton-matter_1.4.0 jsoncpp', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
-RDEPENDS_${PN}:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
+RDEPENDS:${PN}:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_TESTS', 'ON', ' cmocka gtest', '', d)}"
 #TODO: zigbee
 #TODO: gir generation - Barton cmake looks for the existence of g-ir tools and does the generation on its own. We do not use gobject-introspection.bbclass at this time.
@@ -65,13 +65,13 @@ do_install:append() {
     fi
 }
 
-FILES_${PN} += "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', '${bindir}/barton-core-reference', '', d)}"
+FILES:${PN} += "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', '${bindir}/barton-core-reference', '', d)}"
 
 # Define what goes in the main runtime package
-FILES_${PN} += "${libdir}/libBartonCore.so.*"
+FILES:${PN} += "${libdir}/libBartonCore.so.*"
 
 # Ensure the dev package contains the public API headers
-FILES_${PN}-dev += "${includedir}/barton/"
+FILES:${PN}-dev += "${includedir}/barton/"
 
 # Skip QA check for .so files in the -dev package
-INSANE_SKIP_${PN}-dev += "dev-elf"
+INSANE_SKIP:${PN}-dev += "dev-elf"

@@ -41,5 +41,5 @@ do_install() {
     cp -r --no-preserve=ownership ${S}/libs/device/helper/c/public/* ${D}${includedir}
 }
 
-FILES_${PN}-dev += "${libdir}/*.a"
-FILES_${PN}-dev += "${includedir}"
+FILES:${PN}-dev += "${libdir}/*.a"
+FILES:${PN}-dev += "${includedir}"

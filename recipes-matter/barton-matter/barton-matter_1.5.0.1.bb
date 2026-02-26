@@ -50,7 +50,7 @@ DEPENDS:append = " \
 "
 
 PROVIDES = "barton-matter"
-RPROVIDES_${PN} = "barton-matter"
+RPROVIDES:${PN} = "barton-matter"
 
 inherit pkgconfig python3native
 

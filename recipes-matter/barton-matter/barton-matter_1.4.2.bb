@@ -17,7 +17,7 @@ DEPENDS:append = " \
 "
 
 PROVIDES = "barton-matter"
-RPROVIDES_${PN} = "barton-matter"
+RPROVIDES:${PN} = "barton-matter"
 
 SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;name=barton-matter;nobranch=1"
 SRC_URI += "file://matter_1.4/0001-Fix-reading-ExtendedAddress-from-otbr-agent-39723.patch"

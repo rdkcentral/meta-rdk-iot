@@ -80,4 +80,4 @@ do_install() {
     install -m 0755 ${WORKDIR}/build/barton-core-reference ${D}${bindir}/barton-core-reference
 }
 
-FILES_${PN} += "${bindir}/barton-core-reference"
+FILES:${PN} += "${bindir}/barton-core-reference"

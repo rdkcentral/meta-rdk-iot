@@ -31,7 +31,8 @@ static_library("barton") {
     "//src/protocols",
     "//src/setup_payload",
     "${chip_root}/src/crypto",
-    "${chip_root}/third_party/jsoncpp"
+    "${chip_root}/third_party/jsoncpp",
+    "//src/lib/support/jsontlv"
   ]
 
   output_name = "libBartonMatter"

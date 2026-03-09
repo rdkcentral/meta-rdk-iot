@@ -1,4 +1,4 @@
-DESCRIPTION = "Barton IoT Platform Library"
+DESCRIPTION = "Common libraries and utilities shared across Barton projects"
 HOMEPAGE = "https://github.com/rdkcentral/BartonCommon"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=1079582effd6f382a3fba8297d579b46"

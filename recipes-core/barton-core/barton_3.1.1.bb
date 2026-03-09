@@ -33,7 +33,7 @@ BARTON_GEN_GIR ?= "OFF"
 BARTON_BUILD_TESTS ?= "OFF"
 BARTON_VALIDATE_MATTER_SCHEMAS ?= "OFF"
 BARTON_USE_MATTERJS ?= "OFF"
-# This should be an absolute path within to the target sysroot (i.e, often /).
+# This should be an absolute path within the target sysroot (i.e, often /).
 # This default value matches Barton's default for BCORE_MATTER_SBMD_SPECS_DIR.
 BARTON_SBMD_SPEC_DIR ?= "${prefix}/sbmd-specs"
 

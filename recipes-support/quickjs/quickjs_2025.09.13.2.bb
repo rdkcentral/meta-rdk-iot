@@ -1,7 +1,7 @@
-SUMMARY = "QuickJS-NG - A mighty JavaScript engine"
+SUMMARY = "QuickJS - A small and embeddable JavaScript engine"
 DESCRIPTION = "QuickJS is a small and embeddable JavaScript engine. \
 It aims to support the latest ECMAScript specification."
-HOMEPAGE = "https://github.com/quickjs-ng/quickjs"
+HOMEPAGE = "https://bellard.org/quickjs/"
 
 LICENSE = "MIT & Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=00d0a5fff8216c94faadd9a51b23695e \

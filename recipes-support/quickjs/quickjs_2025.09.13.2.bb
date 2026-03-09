@@ -3,8 +3,9 @@ DESCRIPTION = "QuickJS is a small and embeddable JavaScript engine. \
 It aims to support the latest ECMAScript specification."
 HOMEPAGE = "https://github.com/quickjs-ng/quickjs"
 
-LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=00d0a5fff8216c94faadd9a51b23695e"
+LICENSE = "MIT & Apache-2.0"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=00d0a5fff8216c94faadd9a51b23695e \
+                    file://${THISDIR}/files/CMakeLists.txt;beginline=1;endline=22;md5=51713a44573743dcc1ebe5ccf2c9d037"
 
 QUICKJS_VERSION = "2025-09-13-2"
 # The extracted source directory is missing the -2 suffix. Additionally, S needs to be set to this directory.

@@ -65,7 +65,7 @@ do_install:append() {
     if [ -d ${S}/api/c/public ]; then
         cp -r --no-preserve=ownership ${S}/api/c/public/* ${D}${includedir}/barton/
     else
-        echo "Warning: No public API headers found in ${S}/api/c/public"
+        echo "Error: No public API headers found in ${S}/api/c/public"
         exit 1
     fi
 

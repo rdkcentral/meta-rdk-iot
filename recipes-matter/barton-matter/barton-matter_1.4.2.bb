@@ -108,7 +108,6 @@ do_configure:prepend() {
         touch ${S}/third_party/barton/BartonProjectConfigCustom.in
     fi
 
-    export SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
     cd ${WORKDIR}/git
     git submodule update --init -- third_party/mbedtls
     git submodule update --init -- third_party/nlassert/repo
@@ -118,19 +117,23 @@ do_configure:prepend() {
     git submodule update --init -- third_party/perfetto/repo
     cd "${B}"
 }
+do_configure[vardepsexclude] += "SSH_AUTH_SOCK"
 
 do_compile:prepend() {
     # Matter generation has two stages - zap and idl codegen. Passing a pregenerated dir
     # means it skips most of both steps. However, the idl codegen step still runs some
     # python that depends on module imports. Most of these we can get from recipes but
     # lark is missing. To workaround, invoke the pip3 in sysroot-native to install lark.
-    pip3 install lark
+    pip3 install --no-cache-dir lark==1.1.5
 
     # This allows the matter idl python module to be findable for the idl codegen build step.
     export PYTHONPATH=${PYTHONPATH}:${S}/scripts/py_matter_idl/
 }
+do_compile[vardepsexclude] += "PYTHONPATH"
+do_compile[network] = "1"
 
 do_install:prepend() {
     # This allows the matter idl python module to be findable for the idl codegen install step.
     export PYTHONPATH=${PYTHONPATH}:${S}/scripts/py_matter_idl/
 }
+do_install[vardepsexclude] += "PYTHONPATH"

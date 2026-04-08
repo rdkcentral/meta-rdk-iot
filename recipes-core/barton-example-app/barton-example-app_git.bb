@@ -28,11 +28,11 @@ DEPENDS:append = " \
 #
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
-SRCREV = "31f8d0feacb8e5ea7f9f99352967b9804c57e6d8"
+SRCREV = "7036fd3ff4d02cead355a983f57a0b54d9cb0bf3"
 S = "${WORKDIR}/git"
 PR = "r0"
 # Update BPV when SRCREV changes to latest semantic version
-BPV = "3.1.1"
+BPV = "4.0.0"
 PV = "${BPV}+git"
 
 inherit cmake pkgconfig

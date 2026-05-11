@@ -65,8 +65,7 @@ do_install:append() {
     if [ -d ${S}/api/c/public ]; then
         cp -r --no-preserve=ownership ${S}/api/c/public/* ${D}${includedir}/barton/
     else
-        echo "Error: No public API headers found in ${S}/api/c/public"
-        exit 1
+        bbfatal_log "Error: No public API headers found in ${S}/api/c/public"
     fi
 
     # BartonCore CMake does not generate install instructions for the reference app

@@ -1,0 +1,81 @@
+#------------------------------ tabstop = 4 ----------------------------------
+#
+# If not stated otherwise in this file or this component's LICENSE file the
+# following copyright and licenses apply:
+#
+# Copyright 2024 Comcast Cable Communications Management, LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+#------------------------------ tabstop = 4 ----------------------------------
+
+#
+# Created by Christian Leithner on 12/16/2024.
+#
+
+# Format with `gn format BUILD.gn`
+
+import("//build_overrides/build.gni")
+import("//build_overrides/chip.gni")
+
+import("${chip_root}/build/chip/tools.gni")
+import("${chip_root}/build/config/linux/pkg_config.gni")
+import("${chip_root}/src/app/chip_data_model.gni")
+
+pkg_config("libcurl_config") {
+  packages = [ "libcurl" ]
+}
+
+pkg_config("openssl_config") {
+  packages = [ "openssl" ]
+}
+
+chip_data_model("barton-data-model") {
+  zap_file = "barton-library.zap"
+  is_server = true
+}
+
+static_library("barton") {
+  public_deps = [
+    ":barton-data-model",
+    "${chip_root}/src/app/server",
+    "${chip_root}/src/controller",
+    "${chip_root}/src/credentials:default_attestation_verifier",
+    "${chip_root}/src/credentials:file_attestation_trust_store",
+    "${chip_root}/src/lib",
+    "${chip_root}/src/platform/logging:default",
+    "${chip_root}/src/protocols",
+    "${chip_root}/src/setup_payload",
+    "${chip_root}/src/lib/support/jsontlv",
+
+    "${chip_root}/src/crypto",
+    "${chip_root}/src/lib",
+    "${chip_root}/third_party/jsoncpp"
+  ]
+
+  public_configs = [ ":openssl_config" ]
+
+  output_name = "libBartonMatter"
+  complete_static_lib = true
+  output_dir = "${root_out_dir}/lib"
+}
+
+group("linux") {
+  deps = [ ":barton" ]
+}
+
+group("default") {
+  deps = [ ":linux" ]
+}

@@ -19,12 +19,16 @@ Signed-off-by: Yocto Build System <yocto@example.com>
  1 file changed, 2 insertions(+)
 
 diff --git a/scripts/setup/requirements.build.txt b/scripts/setup/requirements.build.txt
+index 1234567..abcdefg 100644
 --- a/scripts/setup/requirements.build.txt
 +++ b/scripts/setup/requirements.build.txt
-@@ -11,3 +11,5 @@ coloredlogs
+@@ -11,4 +11,6 @@ coloredlogs
  jinja2
  lark
  python-path
+-lxml
+\ No newline at end of file
++lxml
 +# Required by Pigweed's pw_watch module
 +watchdog>=2.1.0
 --

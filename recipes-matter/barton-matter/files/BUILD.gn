@@ -61,7 +61,6 @@ static_library("barton") {
     "${chip_root}/src/lib/support/jsontlv",
 
     "${chip_root}/src/crypto",
-    "${chip_root}/src/lib",
     "${chip_root}/third_party/jsoncpp"
   ]
 

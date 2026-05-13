@@ -4,7 +4,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 # CRITICAL VERSION NOTICE:
-# Matter SDK version: 1.5.0.1
+# Matter SDK version: 1.5.1.0
 #
 # This specific Matter SDK commit has been tested and validated with Barton.
 # The Barton and Matter SDK versions are tightly coupled. Updating either component
@@ -12,9 +12,9 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 #  - Updating this SRCREV may break Barton integration
 #  - Updating Barton may require a corresponding Matter SDK version change
 # Always coordinate Matter and Barton version updates to maintain compatibility.
-SRCREV = "91f770ad97d7f80435f53b9c8842b3d5bbcc2644"
+SRCREV = "abcc720b48c5e59c0edcfe65c516f76ca9448aa3"
 
-SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;branch=master;destsuffix=git;depth=1 \
+SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;branch=v1.5-branch;destsuffix=git;depth=1 \
           file://0001-pigweed-skip-upgrade-symlink-pip.patch \
           file://0002-skip-bluezoo-python-version.patch \
           file://0003-pigweed-fix-gn-venv-creation-for-yocto.patch \
@@ -23,22 +23,18 @@ SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;bran
           file://0006-pigweed-use-legacy-pip-resolver.patch;patchdir=third_party/pigweed/repo \
           file://0007-bootstrap-handle-tput-errors-gracefully.patch \
           file://0008-fix-bash-completion-compatibility.patch \
-          file://0010-codegen-add-python-3.10-compatibility.patch \
           "
 
-# Conditionally add setuptools upgrade patch for Yocto versions with setuptools < 64.0.0
-# This includes Kirkstone (4.0) and earlier. Scarthgap (5.0) and later have setuptools >= 69.0.0.
-SETUPTOOLS_UPGRADE_PATCH = "file://0009-pigweed-upgrade-setuptools-for-yocto.patch;patchdir=third_party/pigweed/repo"
-SRC_URI:append = "${@' ${SETUPTOOLS_UPGRADE_PATCH}' if d.getVar('DISTRO_VERSION') and bb.utils.vercmp_string(d.getVar('DISTRO_VERSION'), '5.0') < 0 else ''}"
+# Upgrade setuptools in the Pigweed venv to >= 68.0.0 (needed for PEP 660 editable_wheel).
+# Safe to apply unconditionally: if setuptools is already new enough, the pip upgrade is a no-op.
+SRC_URI:append = " file://0009-pigweed-upgrade-setuptools-for-yocto.patch;patchdir=third_party/pigweed/repo"
 
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
-PR = "r0"
+PR = "r1"
 
 DEPENDS:append = " \
     curl-native \
-    gn-native \
-    ninja-native \
     python3-pip-native \
     python3-more-itertools-native \
     ca-certificates-native \
@@ -50,9 +46,18 @@ DEPENDS:append = " \
 "
 
 PROVIDES = "barton-matter"
-RPROVIDES_${PN} = "barton-matter"
+RPROVIDES:${PN} = "barton-matter"
 
-inherit pkgconfig python3native
+inherit pkgconfig python3native gn
+
+OEGN_SOURCEPATH = "${S}/third_party/barton"
+OEGN_TARGET_COMPILE = ":barton"
+MATTER_PROJECT_CONFIG_DIR = "${S}/third_party/barton/include/project_config"
+
+python() {
+    config_dir = d.getVar('MATTER_PROJECT_CONFIG_DIR')
+    d.setVar('EXTRA_OEGN', gn_arg_list("chip_project_config_include_dirs", [config_dir]))
+}
 
 # These are intentionally undefined in the base recipe and must be provided by
 # the client in a bbappend
@@ -117,96 +122,126 @@ do_init_submodules() {
 
 addtask do_init_submodules after do_unpack before do_patch
 
+# Source a bash-only script (bootstrap.sh / activate.sh) in a bash subprocess
+# and import all new/changed environment variables back into the current shell.
+# Usage: _matter_source_bash_env <script>
+_matter_source_bash_env() {
+    eval "$(bash -s -- "$1" <<'BASH'
+set -e
+_env_before="$(env | sort)"
+. "$1" >&2
+comm -13 <(printf "%s\n" "$_env_before") <(env | sort) | while IFS="=" read -r _k _v; do
+    [ -n "$_k" ] || continue
+    _v_escaped=$(printf "%s" "$_v" | sed "s/'/'\\''/g")
+    printf "export %s='%s'\n" "$_k" "$_v_escaped"
+done
+BASH
+)"
+}
+
 do_configure:prepend() {
     # Install our build files into a dummy directory within the matter repo.
     # This makes it easier to build as gn has restrictions around visibility
     # scope of files being at repo level or lower.
     mkdir -p ${S}/third_party/barton
     cp ${THISDIR}/files/BUILD.gn ${S}/third_party/barton/
-    cp ${THISDIR}/files/build.sh ${S}/third_party/barton/
     cp ${THISDIR}/files/.gn ${S}/third_party/barton/
     cp ${THISDIR}/files/args.gni ${S}/third_party/barton/
     cp ${THISDIR}/files/configure_project_config.py ${S}/third_party/barton/
+    cp ${THISDIR}/files/BartonProjectConfig.h.in ${S}/third_party/barton/
 
     cp ${MATTER_ZAP_FILE} ${S}/third_party/barton/barton-library.zap
     cp ${MATTER_IDL_FILE} ${S}/third_party/barton/barton-library.matter
     if [ -f "${MATTER_CUSTOM_PROJECT_CONFIG}" ]; then
-        cp ${MATTER_CUSTOM_PROJECT_CONFIG} ${S}/third_party/barton/BartonProjectConfig.h.in
+        cp ${MATTER_CUSTOM_PROJECT_CONFIG} ${S}/third_party/barton/BartonProjectConfigCustom.in
     else
         # create an empty one
-        touch ${S}/third_party/barton/BartonProjectConfig.h.in
+        touch ${S}/third_party/barton/BartonProjectConfigCustom.in
     fi
 
     # Symlink to examples' build_overrides (which sets build_root correctly)
-    ln -s ${S}/examples/build_overrides ${S}/third_party/barton/build_overrides
+    ln -sf ${S}/examples/build_overrides ${S}/third_party/barton/build_overrides
 
     # Symlink to matter zcl and data-model for zap generation
     mkdir -p ${S}/third_party/barton/src/app/zap-templates
-    ln -s ${S}/src/app/zap-templates/zcl/ ${S}/third_party/barton/src/app/zap-templates/zcl
+    ln -sf ${S}/src/app/zap-templates/zcl/ ${S}/third_party/barton/src/app/zap-templates/zcl
 
     # Symlink to chip root because gn "//" paths starts with the directory we install
     # these files into (third_party/barton).
     mkdir -p ${S}/third_party/barton/third_party
-    ln -s ${S} ${S}/third_party/barton/third_party/connectedhomeip
+    ln -sf ${S} ${S}/third_party/barton/third_party/connectedhomeip
 
-    # Create a symbolic link from ${STAGING_DIR_NATIVE}/zap to /tmp/zap.
-    # The reason for this is zap-cli is a node project that will want
-    # to call dlopen on some stuff node will install in $TMP/zap<hash>/pkg. Problem
-    # is /tmp is a tmpfs with noexec so it will fall on its face. This symlink, combined
-    # with setting TMP in the environment to /tmp/zap, will trick it to using an fs with
-    # exec. Just using home for now, but maybe make configurable in the future.
-    mkdir -p "${STAGING_DIR_NATIVE}/zap"
+    # zap-cli is a node project that calls dlopen on things in $TMP/zap<hash>/pkg.
+    # /tmp is noexec so we redirect TMP to a per-recipe exec-capable directory.
+    mkdir -p "${WORKDIR}/zap-tmp"
 
-    if [ ! -L "/tmp/zap" ]; then
-        ln -s "${STAGING_DIR_NATIVE}/zap" "/tmp/zap"
-    fi
+    # Environment needed by both bootstrap and gn gen
+    export SSL_CERT_FILE=${STAGING_DIR_NATIVE}/etc/ssl/certs/ca-certificates.crt
+    export YOCTO_BUILD=1
+    export TMP="${WORKDIR}/zap-tmp"
 
-    export TMP="/tmp/zap"
-}
-
-do_configure() {
+    # Bootstrap Matter/Pigweed — sets PATH so gn/ninja from pigweed are available.
+    # bootstrap.sh uses bash-specific syntax so run it under bash explicitly.
     cd ${S}
-
-    # Bootstrap needs CA cert bundle to download CIPD
-    export SSL_CERT_FILE=${STAGING_DIR_NATIVE}/etc/ssl/certs/ca-certificates.crt
-    export YOCTO_BUILD=1
-
-    # Run the Matter bootstrap script which handles Pigweed setup
-    # Must be sourced to preserve environment variables
     chmod +x ./scripts/bootstrap.sh
-    source ./scripts/bootstrap.sh
+    _matter_source_bash_env ./scripts/bootstrap.sh
+
+    # Generate project config
+    rm -rf ${MATTER_PROJECT_CONFIG_DIR}
+    echo "Generating BartonProjectConfig"
+    python3 ${S}/third_party/barton/configure_project_config.py \
+        ${S}/third_party/barton/BartonProjectConfig.h.in \
+        ${MATTER_PROJECT_CONFIG_DIR}/BartonProjectConfig.h \
+        "CHIP_BARTON_CONF_DIR=${MATTER_CONF_DIR}"
+
+    echo "Generating BartonProjectConfigCustom"
+    cp ${S}/third_party/barton/BartonProjectConfigCustom.in \
+        ${MATTER_PROJECT_CONFIG_DIR}/BartonProjectConfigCustom.h
 }
 
-do_compile() {
-    cd ${S}/third_party/barton
-
+do_compile:prepend() {
+    # Re-activate pigweed environment so ninja from pigweed is in PATH
+    cd ${S}
     export SSL_CERT_FILE=${STAGING_DIR_NATIVE}/etc/ssl/certs/ca-certificates.crt
     export YOCTO_BUILD=1
-    export TMP="/tmp/zap"
-
-    # Map Yocto's TARGET_ARCH to GN's target_cpu format
-    case "${TARGET_ARCH}" in
-        aarch64*|arm64*)
-            export TARGET_CPU="arm64"
-            ;;
-        arm*)
-            export TARGET_CPU="arm"
-            ;;
-        x86_64*)
-            export TARGET_CPU="x64"
-            ;;
-        i*86*)
-            export TARGET_CPU="x86"
-            ;;
-        *)
-            bbfatal "Unsupported TARGET_ARCH: ${TARGET_ARCH}"
-            ;;
-    esac
-
-    ./build.sh -c ${MATTER_CONF_DIR} -o ${B}
+    export TMP="${WORKDIR}/zap-tmp"
+    _matter_source_bash_env ./scripts/activate.sh
 }
 
 do_install() {
+    INCLUDE_DIR=${B}/include/matter
+    GEN_DIR=${B}/gen
+    OBJ_DIR=${B}/obj
+
+    rm -rf ${INCLUDE_DIR}
+    mkdir -p ${INCLUDE_DIR}
+
+    # GN generates an includes directory with explicitly exposed transitive headers
+    if [ -d "${GEN_DIR}/include" ]; then
+        cp -r ${GEN_DIR}/include/* ${INCLUDE_DIR}
+    fi
+
+    # Project headers
+    cp -r ${S}/third_party/barton/include/* ${INCLUDE_DIR}
+    cp ${MATTER_PROJECT_CONFIG_DIR}/BartonProjectConfig.h ${INCLUDE_DIR}
+    cp ${MATTER_PROJECT_CONFIG_DIR}/BartonProjectConfigCustom.h ${INCLUDE_DIR}
+
+    # SDK and third_party headers
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/src/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/src/include/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/nlassert/repo/include/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/nlio/repo/include/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/nlfaultinjection/include/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/inipp/repo/inipp/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/jsoncpp/repo/include/ ${INCLUDE_DIR}
+
+    # zap generated includes
+    cp -r ${S}/zzz_generated/app-common/app-common ${INCLUDE_DIR}
+    cp -r ${S}/zzz_generated/app-common/clusters ${INCLUDE_DIR}
+    mkdir -p ${INCLUDE_DIR}/zap-generated
+    cp -r ${GEN_DIR}/zapgen/zap-generated/*.h* ${INCLUDE_DIR}/zap-generated
+
+    # Install libraries and headers to destination
     install -d ${D}/${libdir}
     cp -r --no-preserve=ownership ${B}/lib/* ${D}/${libdir}
 

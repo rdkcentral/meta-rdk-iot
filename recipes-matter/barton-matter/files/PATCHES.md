@@ -46,18 +46,17 @@ The Matter SDK uses Pigweed for its build system and Python environment manageme
 **Why it's needed**:
 - `bluezoo` requires Python >= 3.11
 - Yocto Kirkstone provides Python 3.10
-- Matter SDK lists `bluezoo` in requirements without version guards
+- Matter SDK lists `bluezoo` in test requirements without version guards
 
 **What it does**:
 - Adds Python version markers to skip `bluezoo` installation on Python < 3.11
-- Format: `bluezoo>=0.1.0; python_version >= "3.11"`
+- Format: `bluezoo>=1.0.2; sys_platform == "linux" and python_version >= "3.11"`
 
 **Impact**:
 - Bluetooth testing functionality that depends on `bluezoo` will not be available
-- Core Matter functionality (chip-tool) is unaffected
+- Core Matter functionality is unaffected
 
 **Files modified**:
-- `scripts/setup/constraints.txt`
 - `scripts/tests/requirements.txt`
 
 ---
@@ -125,7 +124,7 @@ The Matter SDK uses Pigweed for its build system and Python environment manageme
 - With `--system-site-packages` enabled, packages installed in venv are visible to native sysroot commands
 
 **What it does**:
-- Adds `watchdog>=2.0` to `scripts/setup/requirements.build.txt`
+- Adds `watchdog>=2.1.0` to `scripts/setup/requirements.build.txt`
 
 **Impact**:
 - Eliminates `pw doctor` warnings about missing pw_watch

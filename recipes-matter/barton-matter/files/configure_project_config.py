@@ -45,11 +45,18 @@ def main(template_path, output_path, replacement_values):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Usage: %s <template> <output> [KEY=VALUE ...]" % sys.argv[0], file=sys.stderr)
+        sys.exit(1)
+
     template_path = sys.argv[1]
     output_path = sys.argv[2]
     replacements = dict()
     for i in range(3, len(sys.argv)):
-        split = sys.argv[i].split("=")
-        replacements[split[0]] = split[1]
+        if "=" not in sys.argv[i]:
+            print("Error: argument '%s' must be in KEY=VALUE format" % sys.argv[i], file=sys.stderr)
+            sys.exit(1)
+        key, value = sys.argv[i].split("=", 1)
+        replacements[key] = value
 
     main(template_path, output_path, replacements)

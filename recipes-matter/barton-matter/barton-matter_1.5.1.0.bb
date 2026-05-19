@@ -35,8 +35,6 @@ PR = "r0"
 
 DEPENDS:append = " \
     curl-native \
-    gn-native \
-    ninja-native \
     python3-pip-native \
     python3-more-itertools-native \
     ca-certificates-native \
@@ -48,9 +46,18 @@ DEPENDS:append = " \
 "
 
 PROVIDES = "barton-matter"
-RPROVIDES_${PN} = "barton-matter"
+RPROVIDES:${PN} = "barton-matter"
 
-inherit pkgconfig python3native
+inherit pkgconfig python3native gn
+
+OEGN_SOURCEPATH = "${S}/third_party/barton"
+OEGN_TARGET_COMPILE = ":barton"
+MATTER_PROJECT_CONFIG_DIR = "${S}/third_party/barton/include/project_config"
+
+python() {
+    config_dir = d.getVar('MATTER_PROJECT_CONFIG_DIR')
+    d.setVar('EXTRA_OEGN', gn_arg_list("chip_project_config_include_dirs", [config_dir]))
+}
 
 # These are intentionally undefined in the base recipe and must be provided by
 # the client in a bbappend
@@ -121,7 +128,6 @@ do_configure:prepend() {
     # scope of files being at repo level or lower.
     mkdir -p ${S}/third_party/barton
     cp ${THISDIR}/files/BUILD.gn ${S}/third_party/barton/
-    cp ${THISDIR}/files/build.sh ${S}/third_party/barton/
     cp ${THISDIR}/files/.gn ${S}/third_party/barton/
     cp ${THISDIR}/files/args.gni ${S}/third_party/barton/
     cp ${THISDIR}/files/configure_project_config.py ${S}/third_party/barton/
@@ -137,75 +143,88 @@ do_configure:prepend() {
     fi
 
     # Symlink to examples' build_overrides (which sets build_root correctly)
-    ln -s ${S}/examples/build_overrides ${S}/third_party/barton/build_overrides
+    ln -sf ${S}/examples/build_overrides ${S}/third_party/barton/build_overrides
 
     # Symlink to matter zcl and data-model for zap generation
     mkdir -p ${S}/third_party/barton/src/app/zap-templates
-    ln -s ${S}/src/app/zap-templates/zcl/ ${S}/third_party/barton/src/app/zap-templates/zcl
+    ln -sf ${S}/src/app/zap-templates/zcl/ ${S}/third_party/barton/src/app/zap-templates/zcl
 
     # Symlink to chip root because gn "//" paths starts with the directory we install
     # these files into (third_party/barton).
     mkdir -p ${S}/third_party/barton/third_party
-    ln -s ${S} ${S}/third_party/barton/third_party/connectedhomeip
+    ln -sf ${S} ${S}/third_party/barton/third_party/connectedhomeip
 
-    # Create a symbolic link from ${STAGING_DIR_NATIVE}/zap to /tmp/zap.
-    # The reason for this is zap-cli is a node project that will want
-    # to call dlopen on some stuff node will install in $TMP/zap<hash>/pkg. Problem
-    # is /tmp is a tmpfs with noexec so it will fall on its face. This symlink, combined
-    # with setting TMP in the environment to /tmp/zap, will trick it to using an fs with
-    # exec. Just using home for now, but maybe make configurable in the future.
-    mkdir -p "${STAGING_DIR_NATIVE}/zap"
+    # zap-cli is a node project that calls dlopen on things in $TMP/zap<hash>/pkg.
+    # /tmp is noexec so we redirect TMP to a per-recipe exec-capable directory.
+    mkdir -p "${WORKDIR}/zap-tmp"
 
-    if [ ! -L "/tmp/zap" ]; then
-        ln -s "${STAGING_DIR_NATIVE}/zap" "/tmp/zap"
-    fi
-
-    export TMP="/tmp/zap"
-}
-
-do_configure() {
-    cd ${S}
-
-    # Bootstrap needs CA cert bundle to download CIPD
+    # Environment needed by both bootstrap and gn gen
     export SSL_CERT_FILE=${STAGING_DIR_NATIVE}/etc/ssl/certs/ca-certificates.crt
     export YOCTO_BUILD=1
+    export TMP="${WORKDIR}/zap-tmp"
 
-    # Run the Matter bootstrap script which handles Pigweed setup
-    # Must be sourced to preserve environment variables
+    # Bootstrap Matter/Pigweed — sets PATH so gn/ninja from pigweed are available.
+    # Must be sourced in the same shell so the class's gn_do_configure sees the PATH.
+    cd ${S}
     chmod +x ./scripts/bootstrap.sh
     source ./scripts/bootstrap.sh
+
+    # Generate project config
+    rm -rf ${MATTER_PROJECT_CONFIG_DIR}
+    echo "Generating BartonProjectConfig"
+    python3 ${S}/third_party/barton/configure_project_config.py \
+        ${S}/third_party/barton/BartonProjectConfig.h.in \
+        ${MATTER_PROJECT_CONFIG_DIR}/BartonProjectConfig.h \
+        "CHIP_BARTON_CONF_DIR=${MATTER_CONF_DIR}"
+
+    echo "Generating BartonProjectConfigCustom"
+    cp ${S}/third_party/barton/BartonProjectConfigCustom.in \
+        ${MATTER_PROJECT_CONFIG_DIR}/BartonProjectConfigCustom.h
 }
 
-do_compile() {
-    cd ${S}/third_party/barton
-
+do_compile:prepend() {
+    # Re-activate pigweed environment so ninja from pigweed is in PATH
+    cd ${S}
     export SSL_CERT_FILE=${STAGING_DIR_NATIVE}/etc/ssl/certs/ca-certificates.crt
     export YOCTO_BUILD=1
-    export TMP="/tmp/zap"
-
-    # Map Yocto's TARGET_ARCH to GN's target_cpu format
-    case "${TARGET_ARCH}" in
-        aarch64*|arm64*)
-            export TARGET_CPU="arm64"
-            ;;
-        arm*)
-            export TARGET_CPU="arm"
-            ;;
-        x86_64*)
-            export TARGET_CPU="x64"
-            ;;
-        i*86*)
-            export TARGET_CPU="x86"
-            ;;
-        *)
-            bbfatal "Unsupported TARGET_ARCH: ${TARGET_ARCH}"
-            ;;
-    esac
-
-    ./build.sh -c ${MATTER_CONF_DIR} -o ${B}
+    export TMP="${WORKDIR}/zap-tmp"
+    source ./scripts/activate.sh
 }
 
 do_install() {
+    INCLUDE_DIR=${B}/include/matter
+    GEN_DIR=${B}/gen
+    OBJ_DIR=${B}/obj
+
+    rm -rf ${INCLUDE_DIR}
+    mkdir -p ${INCLUDE_DIR}
+
+    # GN generates an includes directory with explicitly exposed transitive headers
+    if [ -d "${GEN_DIR}/include" ]; then
+        cp -r ${GEN_DIR}/include/* ${INCLUDE_DIR}
+    fi
+
+    # Project headers
+    cp -r ${S}/third_party/barton/include/* ${INCLUDE_DIR}
+    cp ${MATTER_PROJECT_CONFIG_DIR}/BartonProjectConfig.h ${INCLUDE_DIR}
+    cp ${MATTER_PROJECT_CONFIG_DIR}/BartonProjectConfigCustom.h ${INCLUDE_DIR}
+
+    # SDK and third_party headers
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/src/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/src/include/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/nlassert/repo/include/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/nlio/repo/include/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/nlfaultinjection/include/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/inipp/repo/inipp/ ${INCLUDE_DIR}
+    rsync -am --include="*/" --include="*.h**" --exclude="*" ${S}/third_party/jsoncpp/repo/include/ ${INCLUDE_DIR}
+
+    # zap generated includes
+    cp -r ${S}/zzz_generated/app-common/app-common ${INCLUDE_DIR}
+    cp -r ${S}/zzz_generated/app-common/clusters ${INCLUDE_DIR}
+    mkdir -p ${INCLUDE_DIR}/zap-generated
+    cp -r ${GEN_DIR}/zapgen/zap-generated/*.h* ${INCLUDE_DIR}/zap-generated
+
+    # Install libraries and headers to destination
     install -d ${D}/${libdir}
     cp -r --no-preserve=ownership ${B}/lib/* ${D}/${libdir}
 

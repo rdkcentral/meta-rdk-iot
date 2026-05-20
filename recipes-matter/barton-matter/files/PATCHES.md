@@ -256,32 +256,6 @@ The Matter SDK uses Pigweed for its build system and Python environment manageme
 
 ---
 
-### 0010-codegen-add-python-3.10-compatibility.patch
-
-**Purpose**: Add Python 3.10 compatibility for logging level mapping in Matter's codegen script.
-
-**Why it's needed**:
-- Matter's `scripts/codegen.py` uses `logging.getLevelNamesMapping()` to get log level mappings
-- `logging.getLevelNamesMapping()` was added in Python 3.11
-- Yocto Kirkstone provides Python 3.10, which doesn't have this method
-- Without this patch, codegen fails with: `AttributeError: module 'logging' has no attribute 'getLevelNamesMapping'`
-
-**What it does**:
-1. Adds version detection using `sys.version_info >= (3, 11)`
-2. For Python 3.11+: Uses the native `logging.getLevelNamesMapping()` method
-3. For Python 3.10 and earlier: Provides a manual fallback mapping with all standard log levels
-4. Maintains identical functionality across Python versions
-
-**Technical details**:
-- The fallback mapping includes all standard logging levels: CRITICAL, FATAL, ERROR, WARN, WARNING, INFO, DEBUG, NOTSET
-- Uses the same string-to-constant mapping that `getLevelNamesMapping()` would provide
-- No functional differences - only the source of the mapping changes
-
-**Files modified**:
-- `scripts/codegen.py`
-
----
-
 ## Patch Application Order and Dependencies
 
 The patches must be applied in numerical order due to dependencies:
@@ -295,7 +269,6 @@ The patches must be applied in numerical order due to dependencies:
 7. **0007** - Independent shell compatibility fix
 8. **0008** - Independent shell compatibility fix
 9. **0009** - Setuptools upgrade (relies on 0001 for Yocto detection)
-10. **0010** - Independent Python 3.10 compatibility fix
 
 ## Conditional Patches
 
@@ -371,7 +344,6 @@ If a patch fails to apply cleanly:
 |---------|-------------------|
 | `pip install` takes 15+ minutes | 0006 not applied |
 | `AttributeError: ... '__legacy__'` | 0009 not applied (Kirkstone only) |
-| `AttributeError: module 'logging' has no attribute 'getLevelNamesMapping'` | 0010 not applied |
 | `ModuleNotFoundError: No module named 'jinja2'` | 0004 not applied |
 | `syntax error near unexpected token '<'` | 0008 not applied |
 | `tput: No value for $TERM` error | 0007 not applied |
@@ -394,9 +366,6 @@ grep "legacy-resolver" third_party/pigweed/repo/pw_build/py/pw_build/pip_install
 
 # Check bash completion compatibility
 grep "COMPREPLY=(\$(" scripts/helpers/bash-completion.sh
-
-# Check Python 3.10 logging compatibility
-grep "sys.version_info >= (3, 11)" scripts/codegen.py
 ```
 
 ## Upstream Status
@@ -416,9 +385,8 @@ When updating Matter SDK version:
 2. Patch 0002 may be removable if Matter adds Python version markers upstream
 3. Patch 0005 may be removable if Matter adds watchdog to requirements
 4. Patches 0006, 0007, 0008 are likely stable (affect different subsystems)
-5. Patch 0010 may be removable when upgrading to Python 3.11+ in future Yocto releases
-6. Always test full bootstrap process after updating
-7. Check if Pigweed submodule commit changed (affects patches with patchdir)
+5. Always test full bootstrap process after updating
+6. Check if Pigweed submodule commit changed (affects patches with patchdir)
 
 ## References
 

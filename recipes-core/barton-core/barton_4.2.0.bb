@@ -16,7 +16,7 @@ DEPENDS:append = " \
 RPROVIDES:${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
-SRCREV = "05f145cb35400d56c8377a8f0573bd17ac79cd55"
+SRCREV = "29055d8251612521fc789e73cd840e0f47db8a93"
 S = "${WORKDIR}/git"
 PR = "r0"
 

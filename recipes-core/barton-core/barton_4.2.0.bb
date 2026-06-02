@@ -17,7 +17,7 @@ RPROVIDES:${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 SRCREV = "05f145cb35400d56c8377a8f0573bd17ac79cd55"
-SRC_URI += "file://region-code.patch"
+SRC_URI += "file://barton-region-code.patch"
 S = "${WORKDIR}/git"
 PR = "r0"
 

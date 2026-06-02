@@ -1,0 +1,72 @@
+From c5a9fbed0a2b5ee1f07a266656aff6a02bc6c251 Mon Sep 17 00:00:00 2001
+From: Naeem Khan <naeem_khan@comcast.com>
+Date: Thu, 30 Apr 2026 22:52:59 -0500
+Subject: [PATCH 1/2] fix(config): switch zigbee region lookup to
+ cpe.zigbee.region_code
+
+Refs: XHCPE-2544
+Signed-off-by: Naeem Khan <naeem_khan@comcast.com>
+---
+ core/src/devicePrivateProperties.h           | 2 +-
+ core/src/subsystems/zigbee/zigbeeSubsystem.c | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/core/src/devicePrivateProperties.h b/core/src/devicePrivateProperties.h
+index dc2b9cc..8fdbe4c 100644
+--- a/core/src/devicePrivateProperties.h
++++ b/core/src/devicePrivateProperties.h
+@@ -50,7 +50,7 @@
+ #define TEST_FASTTIMERS_PROP                                  "cpe.tests.fastTimers"
+ #define CPE_ZIGBEE_CHANNEL_CHANGE_ENABLED_KEY                 "cpe.zigbee.channelChange.enabled"
+ #define CPE_ZIGBEE_CHANNEL_CHANGE_MAX_REJOIN_WAITTIME_MINUTES "cpe.zigbee.channelChange.maxWaitTimeMin"
+-#define CPE_REGION_CODE_PROPERTY_NAME                         "country_code"
++#define CPE_ZIGBEE_REGION_CODE                                "cpe.zigbee.region_code"
+ #define ZIGBEE_HEALTH_CHECK_INTERVAL_MILLIS                   "cpe.zigbee.healthCheck.intervalMillis"
+ #define ZIGBEE_HEALTH_CHECK_CCA_THRESHOLD                     "cpe.zigbee.healthCheck.ccaThreshold"
+ #define ZIGBEE_HEALTH_CHECK_CCA_FAILURE_THRESHOLD             "cpe.zigbee.healthCheck.ccaFailureThreshold"
+diff --git a/core/src/subsystems/zigbee/zigbeeSubsystem.c b/core/src/subsystems/zigbee/zigbeeSubsystem.c
+index 86ce786..d144f2e 100644
+--- a/core/src/subsystems/zigbee/zigbeeSubsystem.c
++++ b/core/src/subsystems/zigbee/zigbeeSubsystem.c
+@@ -792,8 +792,9 @@ static bool initializeNetwork(void)
+     }
+ 
+     uint64_t localEui64 = loadLocalEui64();
+-    scoped_generic char *region = b_core_property_provider_get_property_as_string(
+-        propertyProvider, CPE_REGION_CODE_PROPERTY_NAME, "US");
++
++    scoped_generic char *region =
++        b_core_property_provider_get_property_as_string(propertyProvider, CPE_ZIGBEE_REGION_CODE, NULL);
+ 
+     for (int i = 0; i < MAX_NETWORK_INIT_RETRIES; ++i)
+     {
+-- 
+2.43.0
+
+
+From 581fb0a4394aa7c9d473e4c539eb3940c8ebd85c Mon Sep 17 00:00:00 2001
+From: Naeem Khan <naeem_khan@comcast.com>
+Date: Fri, 29 May 2026 10:08:08 -0500
+Subject: [PATCH 2/2] Use a null-safe string fallback when region is missing
+
+Signed-off-by: Naeem Khan <naeem_khan@comcast.com>
+---
+ core/src/zhal/c/src/zhalRequests.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/src/zhal/c/src/zhalRequests.c b/core/src/zhal/c/src/zhalRequests.c
+index 684cd52..f90e6c0 100644
+--- a/core/src/zhal/c/src/zhalRequests.c
++++ b/core/src/zhal/c/src/zhalRequests.c
+@@ -58,7 +58,7 @@ static void setAddress(uint64_t eui64, cJSON *request);
+ 
+ int zhalNetworkInit(uint64_t eui64, const char *region, const char *networkConfigData, icStringHashMap *properties)
+ {
+-    icLogDebug(LOG_TAG, "zhalNetworkInit: eui64=%016" PRIx64 ", region = %s", eui64, region);
++    icLogDebug(LOG_TAG, "zhalNetworkInit: eui64=%016" PRIx64 ", region = %s", eui64, stringCoalesceAlt(region, NULL));
+ 
+     cJSON *request = cJSON_CreateObject();
+ 
+-- 
+2.43.0
+

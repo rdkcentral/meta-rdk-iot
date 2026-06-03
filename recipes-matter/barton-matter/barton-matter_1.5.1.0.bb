@@ -131,7 +131,9 @@ _matter_source_bash_env() {
         _env_before="$(env | sort)"
         . "$1" >&2
         comm -13 <(printf "%s\n" "$_env_before") <(env | sort) | while IFS="=" read -r _k _v; do
-            [ -n "$_k" ] && printf "export %s=%q\n" "$_k" "$_v"
+            [ -n "$_k" ] || continue
+            _v_escaped=$(printf "%s" "$_v" | sed "s/'/'\\''/g")
+            printf "export %s='%s'\n" "$_k" "$_v_escaped"
         done
     ' _ "$1")"
 }

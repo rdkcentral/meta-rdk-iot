@@ -31,7 +31,7 @@ SRC_URI:append = " file://0009-pigweed-upgrade-setuptools-for-yocto.patch;patchd
 
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
-PR = "r0"
+PR = "r1"
 
 DEPENDS:append = " \
     curl-native \
@@ -122,6 +122,20 @@ do_init_submodules() {
 
 addtask do_init_submodules after do_unpack before do_patch
 
+# Source a bash-only script (bootstrap.sh / activate.sh) in a bash subprocess
+# and import all new/changed environment variables back into the current shell.
+# Usage: _matter_source_bash_env <script>
+_matter_source_bash_env() {
+    eval "$(bash -c '
+        set -e
+        _env_before="$(env | sort)"
+        . "$1" >&2
+        comm -13 <(printf "%s\n" "$_env_before") <(env | sort) | while IFS="=" read -r _k _v; do
+            [ -n "$_k" ] && printf "export %s=%q\n" "$_k" "$_v"
+        done
+    ' _ "$1")"
+}
+
 do_configure:prepend() {
     # Install our build files into a dummy directory within the matter repo.
     # This makes it easier to build as gn has restrictions around visibility
@@ -164,10 +178,10 @@ do_configure:prepend() {
     export TMP="${WORKDIR}/zap-tmp"
 
     # Bootstrap Matter/Pigweed — sets PATH so gn/ninja from pigweed are available.
-    # Must be sourced in the same shell so the class's gn_do_configure sees the PATH.
+    # bootstrap.sh uses bash-specific syntax so run it under bash explicitly.
     cd ${S}
     chmod +x ./scripts/bootstrap.sh
-    source ./scripts/bootstrap.sh
+    _matter_source_bash_env ./scripts/bootstrap.sh
 
     # Generate project config
     rm -rf ${MATTER_PROJECT_CONFIG_DIR}
@@ -188,7 +202,7 @@ do_compile:prepend() {
     export SSL_CERT_FILE=${STAGING_DIR_NATIVE}/etc/ssl/certs/ca-certificates.crt
     export YOCTO_BUILD=1
     export TMP="${WORKDIR}/zap-tmp"
-    source ./scripts/activate.sh
+    _matter_source_bash_env ./scripts/activate.sh
 }
 
 do_install() {

@@ -126,16 +126,17 @@ addtask do_init_submodules after do_unpack before do_patch
 # and import all new/changed environment variables back into the current shell.
 # Usage: _matter_source_bash_env <script>
 _matter_source_bash_env() {
-    eval "$(bash -c '
-        set -e
-        _env_before="$(env | sort)"
-        . "$1" >&2
-        comm -13 <(printf "%s\n" "$_env_before") <(env | sort) | while IFS="=" read -r _k _v; do
-            [ -n "$_k" ] || continue
-            _v_escaped=$(printf "%s" "$_v" | sed "s/'/'\\''/g")
-            printf "export %s='%s'\n" "$_k" "$_v_escaped"
-        done
-    ' _ "$1")"
+    eval "$(bash -s -- "$1" <<'BASH'
+set -e
+_env_before="$(env | sort)"
+. "$1" >&2
+comm -13 <(printf "%s\n" "$_env_before") <(env | sort) | while IFS="=" read -r _k _v; do
+    [ -n "$_k" ] || continue
+    _v_escaped=$(printf "%s" "$_v" | sed "s/'/'\\''/g")
+    printf "export %s='%s'\n" "$_k" "$_v_escaped"
+done
+BASH
+)"
 }
 
 do_configure:prepend() {

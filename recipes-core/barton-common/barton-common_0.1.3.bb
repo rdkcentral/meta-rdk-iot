@@ -1,3 +1,4 @@
+
 DESCRIPTION = "Common libraries and utilities shared across Barton projects"
 HOMEPAGE = "https://github.com/rdkcentral/BartonCommon"
 LICENSE = "Apache-2.0"
@@ -13,8 +14,8 @@ DEPENDS:append = " \
 "
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCommon.git;protocol=ssh;name=barton;nobranch=1"
+SRC_URI += "file://0001-use-mbedtls_md5.patch"
 SRCREV = "5cbc66ae7640dcf64a5f8a70f1000042e743099a"
-S = "${WORKDIR}/git"
 PR = "r0"
 
 inherit cmake pkgconfig

@@ -29,7 +29,6 @@ SRC_URI += "file://matter_1.4/0001-Fix-GetPrimary802154MACAddress-on-Linux-platf
 #  - Updating Barton may require a corresponding Matter SDK version change
 # Always coordinate Matter and Barton version updates to maintain compatibility.
 SRCREV = "43aa98c2d30ee547c6b587b9de7bbb794f175ece"
-S = "${WORKDIR}/git"
 PR="r2"
 
 inherit cmake pkgconfig

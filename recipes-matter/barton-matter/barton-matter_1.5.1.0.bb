@@ -29,7 +29,6 @@ SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;bran
 # Safe to apply unconditionally: if setuptools is already new enough, the pip upgrade is a no-op.
 SRC_URI:append = " file://0009-pigweed-upgrade-setuptools-for-yocto.patch;patchdir=third_party/pigweed/repo"
 
-S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
 PR = "r1"
 

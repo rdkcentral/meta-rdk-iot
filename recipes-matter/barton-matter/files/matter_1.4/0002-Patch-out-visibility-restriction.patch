@@ -1,5 +1,6 @@
 From eec689878ff7fba49db945b614dc651511cce3e6 Mon Sep 17 00:00:00 2001
 From: Christian Leithner <christian_leithner@comcast.com>
+Upstream-Status: Pending
 Date: Mon, 15 Sep 2025 20:00:33 +0000
 Subject: [PATCH 2/3] Patch out visibility restriction
 

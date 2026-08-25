@@ -34,7 +34,6 @@ SRC_URI += "file://matter_1.4/0003-Disable-pigweed-venv-generation-because-of-co
 #  - Updating Barton may require a corresponding Matter SDK version change
 # Always coordinate Matter and Barton version updates to maintain compatibility.
 SRCREV = "06523c22640ceb8b89f9a11ff2325a4481a178a3"
-S = "${WORKDIR}/git"
 PR="r2"
 
 inherit cmake pkgconfig python3native

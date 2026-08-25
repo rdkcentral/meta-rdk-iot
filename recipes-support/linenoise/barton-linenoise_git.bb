@@ -19,7 +19,6 @@ PV = "1.0.0+git"
 
 SRC_URI += "file://0001-Add-history-print-and-CMake-build.patch"
 
-S = "${WORKDIR}/git"
 
 inherit cmake pkgconfig
 

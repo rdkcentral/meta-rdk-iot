@@ -16,7 +16,7 @@ SRC_URI = "https://bellard.org/quickjs/quickjs-${QUICKJS_VERSION}.tar.xz \
 
 SRC_URI[sha256sum] = "996c6b5018fc955ad4d06426d0e9cb713685a00c825aa5c0418bd53f7df8b0b4"
 
-S = "${WORKDIR}/${EXTRACTED_LOCATION}"
+S = "${UNPACKDIR}/${EXTRACTED_LOCATION}"
 PR = "r0"
 
 inherit cmake pkgconfig

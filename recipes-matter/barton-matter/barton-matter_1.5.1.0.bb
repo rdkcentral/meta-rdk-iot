@@ -23,6 +23,7 @@ SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;bran
           file://0006-pigweed-use-legacy-pip-resolver.patch;patchdir=third_party/pigweed/repo \
           file://0007-bootstrap-handle-tput-errors-gracefully.patch \
           file://0008-fix-bash-completion-compatibility.patch \
+          file://0010-transport-add-kLargePayloadWithMRPFallback-capabilit.patch \
           "
 
 # Upgrade setuptools in the Pigweed venv to >= 68.0.0 (needed for PEP 660 editable_wheel).

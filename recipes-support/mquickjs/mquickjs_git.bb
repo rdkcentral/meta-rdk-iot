@@ -7,10 +7,12 @@ LICENSE = "MIT & Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=3627525a00366841dd562ffab1470446 \
                     file://${THISDIR}/files/CMakeLists.txt;beginline=1;endline=22;md5=51713a44573743dcc1ebe5ccf2c9d037"
 
-SRCREV = "ee50431eac9b14b99f722b537ec4cac0c8dd75ab"
+SRCREV = "203d5bb79789bc47b74855d9207415dab71661a0"
 SRC_URI = "git://github.com/bellard/mquickjs.git;protocol=https;branch=main \
            file://CMakeLists.txt \
            file://0001-add-memory-usage-api.patch \
+           file://0002-fix-exit-status-on-compile-error.patch \
+           file://0003-add-gc-callback-and-root-count.patch \
           "
 
 S = "${WORKDIR}/git"

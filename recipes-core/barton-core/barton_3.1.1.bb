@@ -17,7 +17,6 @@ RPROVIDES:${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 SRCREV = "31f8d0feacb8e5ea7f9f99352967b9804c57e6d8"
-S = "${WORKDIR}/git"
 PR = "r0"
 
 inherit cmake pkgconfig python3native

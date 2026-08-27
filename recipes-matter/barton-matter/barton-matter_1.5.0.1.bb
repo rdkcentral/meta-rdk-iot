@@ -31,7 +31,6 @@ SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;bran
 SETUPTOOLS_UPGRADE_PATCH = "file://0009-pigweed-upgrade-setuptools-for-yocto.patch;patchdir=third_party/pigweed/repo"
 SRC_URI:append = "${@' ${SETUPTOOLS_UPGRADE_PATCH}' if d.getVar('DISTRO_VERSION') and bb.utils.vercmp_string(d.getVar('DISTRO_VERSION'), '5.0') < 0 else ''}"
 
-S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
 PR = "r0"
 

@@ -16,7 +16,6 @@ RPROVIDES_${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 SRCREV = "26554fabb1a3d7db3c258dfee20507587d56f118"
-S = "${WORKDIR}/git"
 PR = "r1"
 
 inherit cmake pkgconfig

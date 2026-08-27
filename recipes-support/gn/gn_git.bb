@@ -3,7 +3,7 @@ LICENSE = "BSD-3-Clause & Unicode"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=0fca02217a5d49a14dfe2d11837bb34d \
                     file://src/base/third_party/icu/LICENSE;md5=97cdee8fe9e91b393a616bc13c8081db"
 
-SRC_URI = "git://gn.googlesource.com/gn.git;protocol=https"
+SRC_URI = "git://gn.googlesource.com/gn.git;protocol=https;nobranch=1"
 
 DEPENDS = "ninja-native"
 

@@ -21,6 +21,9 @@ PR = "r0"
 
 inherit cmake pkgconfig python3native
 
+INSANE_SKIP:${PN} += "buildpaths"
+INSANE_SKIP:${PN}-dbg += "buildpaths"
+
 # These options provide a convenient facade in front of bitbake dependency management. A client
 # can choose to just overwrite EXTRA_OECMAKE options directly if they wish but must be mindful of
 # dependencies.

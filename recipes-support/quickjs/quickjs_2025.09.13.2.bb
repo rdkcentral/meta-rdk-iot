@@ -27,7 +27,7 @@ EXTRA_OECMAKE = " \
 "
 
 do_configure:prepend() {
-    cp ${WORKDIR}/CMakeLists.txt ${S}/CMakeLists.txt
+    cp ${UNPACKDIR}/CMakeLists.txt ${S}/CMakeLists.txt
 }
 
 FILES:${PN} += "${libdir}/libquickjs.so*"

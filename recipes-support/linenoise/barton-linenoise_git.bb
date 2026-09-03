@@ -22,5 +22,11 @@ SRC_URI += "file://0001-Add-history-print-and-CMake-build.patch"
 
 inherit cmake pkgconfig
 
+do_configure:prepend() {
+    if ! grep -q '^cmake_minimum_required' ${S}/CMakeLists.txt; then
+        sed -i '1i cmake_minimum_required(VERSION 3.5)' ${S}/CMakeLists.txt
+    fi
+}
+
 FILES:${PN}-staticdev = "${libdir}/liblinenoise.a"
 FILES:${PN}-dev += "${includedir}/*"

@@ -38,6 +38,8 @@ PR="r2"
 
 inherit cmake pkgconfig python3native
 
+INSANE_SKIP:${PN}-staticdev:wrynose += "buildpaths"
+
 OECMAKE_GENERATOR="Unix Makefiles"
 
 OECMAKE_SOURCEPATH = "${S}/third_party/barton/"
@@ -108,7 +110,7 @@ do_configure:prepend() {
     fi
 
     export SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
-    cd ${WORKDIR}/git
+    cd ${S}
     git submodule update --init -- third_party/mbedtls
     git submodule update --init -- third_party/nlassert/repo
     git submodule update --init -- third_party/nlio/repo

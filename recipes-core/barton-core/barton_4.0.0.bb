@@ -10,15 +10,17 @@ DEPENDS:append = " \
     glib-2.0 \
     mbedtls \
     libxml2 \
+    barton-common \
 "
 
-RPROVIDES_${PN} += "barton"
+RPROVIDES:${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
-SRCREV = "26554fabb1a3d7db3c258dfee20507587d56f118"
-PR = "r1"
+SRCREV = "7036fd3ff4d02cead355a983f57a0b54d9cb0bf3"
+S = "${WORKDIR}/git"
+PR = "r0"
 
-inherit cmake pkgconfig
+inherit cmake pkgconfig python3native
 
 # These options provide a convenient facade in front of bitbake dependency management. A client
 # can choose to just overwrite EXTRA_OECMAKE options directly if they wish but must be mindful of
@@ -29,6 +31,12 @@ BARTON_BUILD_THREAD ?= "OFF"
 BARTON_BUILD_ZIGBEE ?= "OFF"
 BARTON_GEN_GIR ?= "OFF"
 BARTON_BUILD_TESTS ?= "OFF"
+BARTON_VALIDATE_MATTER_SCHEMAS ?= "OFF"
+BARTON_JS_ENGINE ?= "mquickjs"
+# This should be an absolute path within the target sysroot (i.e, often /).
+# This default value matches Barton's default for BCORE_MATTER_SBMD_SPECS_DIR.
+BARTON_SBMD_SPEC_DIR ?= "${prefix}/sbmd-specs"
+
 EXTRA_OECMAKE = "\
     -DBCORE_BUILD_REFERENCE=${BARTON_BUILD_REFERENCE} \
     -DBCORE_GEN_GIR=${BARTON_GEN_GIR} \
@@ -36,12 +44,16 @@ EXTRA_OECMAKE = "\
     -DBCORE_MATTER=${BARTON_BUILD_MATTER} \
     -DBCORE_THREAD=${BARTON_BUILD_THREAD} \
     -DBCORE_ZIGBEE=${BARTON_BUILD_ZIGBEE} \
+    -DBCORE_MATTER_VALIDATE_SCHEMAS=${BARTON_VALIDATE_MATTER_SCHEMAS} \
+    -DBCORE_MATTER_SBMD_SPECS_DIR=${BARTON_SBMD_SPEC_DIR} \
+    -DBCORE_MATTER_SBMD_JS_ENGINE=${BARTON_JS_ENGINE} \
+    -DBCORE_BUILD_THIRD_PARTY_BARTON_COMMON=OFF \
 "
 
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', ' barton-linenoise', '', d)}"
-DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', ' barton-matter_1.4.0 jsoncpp', '', d)}"
+DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', ' barton-matter jsoncpp yaml-cpp ${BARTON_JS_ENGINE}', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
-RDEPENDS_${PN}:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
+RDEPENDS:${PN}:append = "${@bb.utils.contains('BARTON_BUILD_THREAD', 'ON', ' otbr-agent', '', d)}"
 DEPENDS:append = "${@bb.utils.contains('BARTON_BUILD_TESTS', 'ON', ' cmocka gtest', '', d)}"
 #TODO: zigbee
 #TODO: gir generation - Barton cmake looks for the existence of g-ir tools and does the generation on its own. We do not use gobject-introspection.bbclass at this time.
@@ -53,8 +65,7 @@ do_install:append() {
     if [ -d ${S}/api/c/public ]; then
         cp -r --no-preserve=ownership ${S}/api/c/public/* ${D}${includedir}/barton/
     else
-        echo "Warning: No public API headers found in ${S}/api/c/public"
-        exit 1
+        bbfatal_log "Error: No public API headers found in ${S}/api/c/public"
     fi
 
     # BartonCore CMake does not generate install instructions for the reference app
@@ -64,13 +75,15 @@ do_install:append() {
     fi
 }
 
-FILES_${PN} += "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', '${bindir}/barton-core-reference', '', d)}"
+FILES:${PN} += "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', '${bindir}/barton-core-reference', '', d)}"
+
+FILES:${PN} += "${@bb.utils.contains('BARTON_BUILD_MATTER', 'ON', '${BARTON_SBMD_SPEC_DIR}', '', d)}"
 
 # Define what goes in the main runtime package
-FILES_${PN} += "${libdir}/libBartonCore.so.*"
+FILES:${PN} += "${libdir}/libBartonCore.so.*"
 
 # Ensure the dev package contains the public API headers
-FILES_${PN}-dev += "${includedir}/barton/"
+FILES:${PN}-dev += "${includedir}/barton/"
 
 # Skip QA check for .so files in the -dev package
-INSANE_SKIP_${PN}-dev += "dev-elf"
+INSANE_SKIP:${PN}-dev += "dev-elf"

@@ -9,7 +9,6 @@ DEPENDS = "ninja-native"
 
 SRCREV = "07e2e1b9377fec345575067078257e546affd858"
 
-S = "${WORKDIR}/git"
 PV = "1.0.0+git"
 PR = "r0"
 

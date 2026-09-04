@@ -17,10 +17,12 @@ RPROVIDES:${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 SRCREV = "31f8d0feacb8e5ea7f9f99352967b9804c57e6d8"
-S = "${WORKDIR}/git"
 PR = "r0"
 
 inherit cmake pkgconfig python3native
+
+INSANE_SKIP:${PN} += "buildpaths"
+INSANE_SKIP:${PN}-dbg += "buildpaths"
 
 # These options provide a convenient facade in front of bitbake dependency management. A client
 # can choose to just overwrite EXTRA_OECMAKE options directly if they wish but must be mindful of

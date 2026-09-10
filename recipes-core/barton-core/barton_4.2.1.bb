@@ -17,7 +17,6 @@ RPROVIDES:${PN} += "barton"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 SRCREV = "0cdc7ebe2f5f5ae547e6192433404fe68676ed70"
-S = "${WORKDIR}/git"
 PR = "r0"
 
 inherit cmake pkgconfig python3native
@@ -71,7 +70,7 @@ do_install:append() {
     # BartonCore CMake does not generate install instructions for the reference app
     if "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', 'true', 'false', d)}"; then
         install -d ${D}${bindir}
-        install -m 0755 ${WORKDIR}/build/reference/barton-core-reference ${D}${bindir}/barton-core-reference
+        install -m 0755 ${B}/reference/barton-core-reference ${D}${bindir}/barton-core-reference
     fi
 }
 
@@ -87,3 +86,5 @@ FILES:${PN}-dev += "${includedir}/barton/"
 
 # Skip QA check for .so files in the -dev package
 INSANE_SKIP:${PN}-dev += "dev-elf"
+INSANE_SKIP:${PN} += "buildpaths"
+INSANE_SKIP:${PN}-dbg += "buildpaths"

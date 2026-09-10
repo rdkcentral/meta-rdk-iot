@@ -13,7 +13,7 @@ SRC_URI = "git://github.com/bellard/mquickjs.git;protocol=https;branch=main \
            file://0001-add-memory-usage-api.patch \
           "
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/${PN}-${PV}"
 PV = "0.0.1+git${SRCPV}"
 PR = "r0"
 
@@ -31,7 +31,7 @@ EXTRA_OECMAKE:class-native = " \
 "
 
 do_configure:prepend() {
-    cp ${WORKDIR}/CMakeLists.txt ${S}/CMakeLists.txt
+    cp ${UNPACKDIR}/CMakeLists.txt ${S}/CMakeLists.txt
 }
 
 # Cross-builds need pre-generated headers since the generator can't run on the host.
@@ -41,14 +41,14 @@ do_configure:prepend() {
 do_configure:prepend:class-target() {
     ${BUILD_CC} ${BUILD_CFLAGS} ${BUILD_LDFLAGS} -D_GNU_SOURCE -O2 \
         ${S}/mqjs_stdlib.c ${S}/mquickjs_build.c -lm \
-        -o ${WORKDIR}/mqjs_stdlib_gen_host
+        -o ${UNPACKDIR}/mqjs_stdlib_gen_host
     if [ "${SITEINFO_BITS}" = "32" ]; then
         mqjs_gen_arch="-m32"
     else
         mqjs_gen_arch="-m64"
     fi
-    ${WORKDIR}/mqjs_stdlib_gen_host $mqjs_gen_arch -a > ${S}/mquickjs_atom.h
-    ${WORKDIR}/mqjs_stdlib_gen_host $mqjs_gen_arch > ${S}/mqjs_stdlib.h
+    ${UNPACKDIR}/mqjs_stdlib_gen_host $mqjs_gen_arch -a > ${S}/mquickjs_atom.h
+    ${UNPACKDIR}/mqjs_stdlib_gen_host $mqjs_gen_arch > ${S}/mqjs_stdlib.h
 }
 
 FILES:${PN} += "${libdir}/libmquickjs.so*"

@@ -18,6 +18,8 @@ SRC_URI += "file://0001-use-mbedtls_md5.patch"
 SRCREV = "5cbc66ae7640dcf64a5f8a70f1000042e743099a"
 PR = "r0"
 
+S:kirkstone = "${WORKDIR}/git"
+
 inherit cmake pkgconfig
 
 EXTRA_OECMAKE = "\

@@ -19,6 +19,8 @@ SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=bart
 SRCREV = "0cdc7ebe2f5f5ae547e6192433404fe68676ed70"
 PR = "r0"
 
+S:kirkstone = "${WORKDIR}/git"
+
 inherit cmake pkgconfig python3native
 
 # These options provide a convenient facade in front of bitbake dependency management. A client

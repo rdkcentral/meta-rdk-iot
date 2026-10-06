@@ -12,7 +12,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 #  - Updating this SRCREV may break Barton integration
 #  - Updating Barton may require a corresponding Matter SDK version change
 # Always coordinate Matter and Barton version updates to maintain compatibility.
-SRCREV = "abcc720b48c5e59c0edcfe65c516f76ca9448aa3"
+SRCREV = "41ddb15b08f30ea4d16c3306df0b5c4caa3a5845"
 
 SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;branch=v1.5-branch;destsuffix=git;depth=1 \
           file://0001-pigweed-skip-upgrade-symlink-pip.patch \
@@ -28,6 +28,7 @@ SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;bran
 # Upgrade setuptools in the Pigweed venv to >= 68.0.0 (needed for PEP 660 editable_wheel).
 # Safe to apply unconditionally: if setuptools is already new enough, the pip upgrade is a no-op.
 SRC_URI:append = " file://0009-pigweed-upgrade-setuptools-for-yocto.patch;patchdir=third_party/pigweed/repo"
+SRC_URI:append = " file://matter_1.5/0003-transport-add-kLargePayloadWithMRPFallback-capabilit.patch"
 
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
@@ -54,9 +55,30 @@ OEGN_SOURCEPATH = "${S}/third_party/barton"
 OEGN_TARGET_COMPILE = ":barton"
 MATTER_PROJECT_CONFIG_DIR = "${S}/third_party/barton/include/project_config"
 
+# Developer feature: link the JSON tracing backend into libBartonMatter so that
+# barton built with BCORE_MATTER_MESSAGE_TRACING=ON resolves chip::Tracing::Json.
+# Mirrors build-matter.sh -t. High volume logging; off by default.
+MATTER_MESSAGE_TRACING ?= "0"
+
+# GN root here is ${S}/third_party/barton, not the Matter checkout, so "//" labels
+# must go through the connectedhomeip symlink created in do_configure:prepend.
+# Matches chip_root in examples/build_overrides/chip.gni.
+MATTER_GN_CHIP_ROOT = "//third_party/connectedhomeip"
+
 python() {
     config_dir = d.getVar('MATTER_PROJECT_CONFIG_DIR')
-    d.setVar('EXTRA_OEGN', gn_arg_list("chip_project_config_include_dirs", [config_dir]))
+    extra = gn_arg_list("chip_project_config_include_dirs", [config_dir])
+
+    if d.getVar('MATTER_MESSAGE_TRACING') == '1':
+        chip_root = d.getVar('MATTER_GN_CHIP_ROOT')
+        extra += ' ' + ' '.join([
+            gn_arg_bool("matter_enable_tracing_support", True),
+            gn_arg_bool("matter_log_json_payload_hex", True),
+            gn_arg_bool("matter_log_json_payload_decode_full", True),
+            gn_arg("matter_trace_config", "%s/src/tracing/none" % chip_root),
+        ])
+
+    d.setVar('EXTRA_OEGN', extra)
 }
 
 # These are intentionally undefined in the base recipe and must be provided by
@@ -140,6 +162,24 @@ BASH
 }
 
 do_configure:prepend() {
+    # The Pigweed bootstrap venv has system-site-packages enabled and a pip
+    # symlinked out of recipe-sysroot-native, so its pip installs leak into the
+    # sysroot. On a rerun extend_recipe_sysroot restores python3-pip-native's
+    # older pip but cannot remove the leaked pip-tools, and pip-tools 7.x calls
+    # pip's make_requirement_preparer(build_tracker=...) which needs pip >= 22.2.
+    # Drop the leaked state so bootstrap rebuilds a self-consistent environment.
+    rm -rf ${S}/.environment
+    sysroot_sp="${STAGING_LIBDIR_NATIVE}/${PYTHON_DIR}/site-packages"
+    rm -rf "$sysroot_sp/piptools" "$sysroot_sp"/pip_tools-*.dist-info
+    if [ -f "$sysroot_sp/pip/__init__.py" ]; then
+        # Discard pip metadata left over from versions that are no longer on disk.
+        pip_ver=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' "$sysroot_sp/pip/__init__.py")
+        for d in "$sysroot_sp"/pip-*.dist-info; do
+            [ -e "$d" ] || continue
+            [ "$d" = "$sysroot_sp/pip-$pip_ver.dist-info" ] || rm -rf "$d"
+        done
+    fi
+
     # Install our build files into a dummy directory within the matter repo.
     # This makes it easier to build as gn has restrictions around visibility
     # scope of files being at repo level or lower.

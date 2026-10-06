@@ -33,6 +33,7 @@ import("//build_overrides/chip.gni")
 import("${chip_root}/build/chip/tools.gni")
 import("${chip_root}/build/config/linux/pkg_config.gni")
 import("${chip_root}/src/app/chip_data_model.gni")
+import("${chip_root}/src/tracing/tracing_args.gni")
 
 pkg_config("libcurl_config") {
   packages = [ "libcurl" ]
@@ -45,6 +46,7 @@ pkg_config("openssl_config") {
 chip_data_model("barton-data-model") {
   zap_file = "barton-library.zap"
   is_server = true
+  external_clusters = [ "WEBRTC_TRANSPORT_REQUESTOR_CLUSTER" ]
 }
 
 static_library("barton") {
@@ -63,6 +65,13 @@ static_library("barton") {
     "${chip_root}/src/crypto",
     "${chip_root}/third_party/jsoncpp"
   ]
+
+  # Developer feature: the JSON tracing backend is only available (and only
+  # linkable) when the SDK is built with tracing support. Must be matched by
+  # BCORE_MATTER_MESSAGE_TRACING in the barton core build.
+  if (matter_enable_tracing_support) {
+    public_deps += [ "${chip_root}/src/tracing/json" ]
+  }
 
   public_configs = [ ":openssl_config" ]
 

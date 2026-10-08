@@ -15,8 +15,11 @@ DEPENDS:append = " \
 
 RPROVIDES:${PN} += "barton"
 
-SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
-SRCREV = "9fb02858a40c197997bbd128824e54d17b8eef42"
+# Track the Matter camera demo branch while the Barton integration is in progress.
+# Pin a SRCREV again when the changes are ready for a reproducible release build.
+PV = "4.4.0+git${SRCPV}"
+SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;branch=feature/cameras"
+SRCREV = "${AUTOREV}"
 S = "${WORKDIR}/git"
 PR = "r0"
 

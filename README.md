@@ -2,6 +2,7 @@
 
 ## Overview
 An RDK/Yocto layer to host publicly available open-source IoT related recipes.
+Test purpose; not for merge - RDKDEVTOOL-2956
 
 ## Maintenance
 This layer is maintained by RDK community.

@@ -30,7 +30,9 @@ GECKO_SDK_PATCHED = "${WORKDIR}/gecko_sdk"
 
 # The vendored gecko_sdk makefiles build at -O0 and with -Werror; _FORTIFY_SOURCE then trips a glibc #warning.
 # Newer GCC releases also promote several warnings the SDK and ZigbeeCore still emit to hard errors.
-ZIGBEECORE_COMPAT_FLAGS = "-U_FORTIFY_SOURCE -Wno-error=implicit-function-declaration -Wno-error=return-mismatch -Wno-error=incompatible-pointer-types"
+# -Wno-return-mismatch is spelled without "error=" on purpose: GCC before 14 silently ignores an unknown -Wno-<name>
+# but rejects an unknown -Wno-error=<name>, which would break even the compiler check of older toolchains.
+ZIGBEECORE_COMPAT_FLAGS = "-U_FORTIFY_SOURCE -Wno-error=implicit-function-declaration -Wno-return-mismatch -Wno-error=incompatible-pointer-types"
 # The SDK makefiles override CFLAGS, so carry the prefix maps on CC/CXX to keep build paths out of debug info.
 CC:append = " ${ZIGBEECORE_COMPAT_FLAGS} ${DEBUG_PREFIX_MAP}"
 CXX:append = " ${ZIGBEECORE_COMPAT_FLAGS} ${DEBUG_PREFIX_MAP}"

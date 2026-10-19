@@ -44,11 +44,18 @@ ZIGBEECORE_MAKE_GOAL ?= "debug"
 # x86_64, i386 or arm64; empty auto-detects from the compiler.
 ZIGBEED_ARCH ?= ""
 
+# The SDK makefiles choose their own optimization (-O0, with -Werror). The makefiles append the CFLAGS, CXXFLAGS and
+# CPPFLAGS they are given, so pass them empty: the -O2 that OE puts in CFLAGS would override -O0 and enable warnings
+# that the SDK sources trigger and -Werror turns into errors. Target architecture options and the sysroot already
+# travel in CC/CXX, and LDFLAGS are still passed through the environment.
 EXTRA_OEMAKE = "\
     CC='${CC}' \
     CXX='${CXX}' \
     LD='${CC}' \
     AR='${AR}' \
+    CFLAGS='' \
+    CXXFLAGS='' \
+    CPPFLAGS='' \
     BASE_SDK_PATH='${GECKO_SDK_PATCHED}' \
 "
 

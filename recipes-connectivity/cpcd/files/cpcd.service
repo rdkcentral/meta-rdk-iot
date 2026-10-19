@@ -1,0 +1,11 @@
+[Unit]
+Description=Silicon Labs Co-Processor Communication daemon
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cpcd -c /etc/cpcd.conf
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

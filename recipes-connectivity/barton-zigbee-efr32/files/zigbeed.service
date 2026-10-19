@@ -1,0 +1,15 @@
+[Unit]
+Description=Silicon Labs Zigbee daemon
+BindsTo=cpcd.service zigbeed-socat.service
+After=cpcd.service zigbeed-socat.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=2
+StateDirectory=zigbeed
+WorkingDirectory=/var/lib/zigbeed
+ExecStart=/usr/bin/zigbeed
+
+[Install]
+WantedBy=multi-user.target

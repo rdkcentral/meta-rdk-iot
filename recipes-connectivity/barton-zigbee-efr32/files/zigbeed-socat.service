@@ -1,0 +1,12 @@
+[Unit]
+Description=EZSP pseudo-terminal pair for zigbeed
+Before=zigbeed.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/socat pty,link=/dev/ttyZigbeeNCP pty,link=/tmp/ttyZigbeeNCP
+
+[Install]
+WantedBy=multi-user.target

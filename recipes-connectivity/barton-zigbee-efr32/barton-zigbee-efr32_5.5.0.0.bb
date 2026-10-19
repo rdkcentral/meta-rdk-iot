@@ -41,7 +41,7 @@ CXX:append = " ${ZIGBEECORE_COMPAT_FLAGS} ${DEBUG_PREFIX_MAP}"
 ZIGBEECORE_BOARD ?= "devboard"
 # debug or release
 ZIGBEECORE_MAKE_GOAL ?= "debug"
-# x86_64, i386 or arm64; empty auto-detects from the compiler.
+# x86_64, i386, arm64 or arm32; empty auto-detects from the compiler.
 ZIGBEED_ARCH ?= ""
 
 # The SDK makefiles choose their own optimization (-O0, with -Werror). The makefiles append the CFLAGS, CXXFLAGS and

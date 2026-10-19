@@ -12,8 +12,8 @@ SRC_URI = "git://git@github.com/rdkcentral/BartonZigbeeEFR32.git;protocol=ssh;no
            file://zigbeed-socat.service \
            file://zigbeed.conf \
           "
-# Commit tagged 5.5.0.0 in BartonZigbeeEFR32.
-SRCREV_zigbeecore = "1ef5289c0ef29c6d6ca4d0caaace6aec8dd64110"
+# BartonZigbeeEFR32 develop, one commit after the 5.5.0.0 tag (adds zigbeed arm32 support).
+SRCREV_zigbeecore = "4980179f9c40de9a0cbb9f50db0295778f32e2e5"
 
 PR = "r0"
 

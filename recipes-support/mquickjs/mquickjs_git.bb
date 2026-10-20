@@ -11,11 +11,13 @@ SRCREV = "ee50431eac9b14b99f722b537ec4cac0c8dd75ab"
 SRC_URI = "git://github.com/bellard/mquickjs.git;protocol=https;branch=main \
            file://CMakeLists.txt \
            file://0001-add-memory-usage-api.patch \
+           file://0002-fix-exit-status-on-compile-error.patch \
+           file://0003-add-gc-callback-and-root-count.patch \
           "
 
 S = "${WORKDIR}/git"
 PV = "0.0.1+git${SRCPV}"
-PR = "r0"
+PR = "r1"
 
 inherit cmake pkgconfig siteinfo
 

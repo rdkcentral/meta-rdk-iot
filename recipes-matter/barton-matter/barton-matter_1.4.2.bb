@@ -19,7 +19,7 @@ DEPENDS:append = " \
 PROVIDES = "barton-matter"
 RPROVIDES_${PN} = "barton-matter"
 
-SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;name=barton-matter;nobranch=1"
+SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;name=barton-matter;nobranch=1;destsuffix=${BPN}-${PV}"
 SRC_URI += "file://matter_1.4/0001-Fix-reading-ExtendedAddress-from-otbr-agent-39723.patch"
 SRC_URI += "file://matter_1.4/0002-Patch-out-visibility-restriction.patch"
 SRC_URI += "file://matter_1.4/0003-Disable-pigweed-venv-generation-because-of-codegen.patch"

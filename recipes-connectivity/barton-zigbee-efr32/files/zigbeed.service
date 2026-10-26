@@ -9,6 +9,9 @@ Restart=always
 RestartSec=2
 StateDirectory=zigbeed
 WorkingDirectory=/var/lib/zigbeed
+# cpcd is Type=simple, so systemd reports it started before it has created its endpoint sockets. Wait for the
+# 802.15.4 endpoint so zigbeed does not fail its first start and rely on Restart=.
+ExecStartPre=/bin/sh -c 'i=0; while [ $$i -lt 60 ]; do [ -S /dev/shm/cpcd/cpcd_0/ep12.cpcd.sock ] && exit 0; sleep 1; i=$$((i+1)); done; exit 1'
 ExecStart=/usr/bin/zigbeed
 
 [Install]

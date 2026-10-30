@@ -8,12 +8,12 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=3627525a00366841dd562ffab1470446 \
                     file://${THISDIR}/files/CMakeLists.txt;beginline=1;endline=22;md5=51713a44573743dcc1ebe5ccf2c9d037"
 
 SRCREV = "ee50431eac9b14b99f722b537ec4cac0c8dd75ab"
-SRC_URI = "git://github.com/bellard/mquickjs.git;protocol=https;branch=main \
+SRC_URI = "git://github.com/bellard/mquickjs.git;protocol=https;branch=main;destsuffix=${BPN} \
            file://CMakeLists.txt \
            file://0001-add-memory-usage-api.patch \
           "
 
-S = "${UNPACKDIR}/${PN}-${PV}"
+S = "${UNPACKDIR}/${BPN}"
 PV = "0.0.1+git${SRCPV}"
 PR = "r0"
 

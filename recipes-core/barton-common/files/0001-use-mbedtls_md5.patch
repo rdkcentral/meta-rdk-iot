@@ -1,0 +1,30 @@
+Use mbedtls_md5() instead of the removed mbedtls_md5_ret()
+
+mbedTLS 3.x dropped the _ret-suffixed digest entry points. The symbol is gone
+from both the header and the library, so this is not a diagnostic that can be
+suppressed -- with the warning demoted the build still fails at link:
+
+  md5.c:66:5: error: implicit declaration of function 'mbedtls_md5_ret';
+      did you mean 'mbedtls_md5_free'? [-Wimplicit-function-declaration]
+
+Confirmed against the sysroot: mbedtls/md5.h declares mbedtls_md5_starts,
+_update, _finish, mbedtls_md5 and _self_test, and libmbedcrypto.so.3.6.6
+exports only those plus _init/_free/_clone. There is no mbedtls_md5_ret.
+
+mbedtls_md5() is the direct replacement with the same signature and return
+convention. The cast is needed because src is 'const char *' while the
+prototype takes 'const unsigned char *'.
+
+Upstream-Status: Pending
+
+--- a/libs/util/c/src/md5.c
++++ b/libs/util/c/src/md5.c
+@@ -63,7 +63,7 @@
+ {
+     unsigned char checksum[DIGEST_BYTE_LEN];
+ 
+-    mbedtls_md5_ret(src, strlen(src), checksum);
++    mbedtls_md5((const unsigned char *) src, strlen(src), checksum);
+ 
+     // now convert to string
+     //

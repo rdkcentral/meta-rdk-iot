@@ -12,16 +12,22 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=faa55ac8cbebebcb4a84fe1ea2879578"
 # should be removed at some point in the future and it is not advised for any other
 # projects to rely on it.
 
-SRC_URI = "git://github.com/antirez/linenoise.git;protocol=https;branch=master"
+SRC_URI = "git://github.com/antirez/linenoise.git;protocol=https;branch=master;destsuffix=${BPN}"
 SRCREV = "d895173d679be70bcd8b23041fff3e458e1a3506"
 PR="r0"
 PV = "1.0.0+git"
+S = "${UNPACKDIR}/${BPN}"
 
 SRC_URI += "file://0001-Add-history-print-and-CMake-build.patch"
 
-S = "${WORKDIR}/git"
 
 inherit cmake pkgconfig
+
+do_configure:prepend() {
+    if ! grep -q '^cmake_minimum_required' ${S}/CMakeLists.txt; then
+        sed -i '1i cmake_minimum_required(VERSION 3.5)' ${S}/CMakeLists.txt
+    fi
+}
 
 FILES:${PN}-staticdev = "${libdir}/liblinenoise.a"
 FILES:${PN}-dev += "${includedir}/*"

@@ -1,5 +1,6 @@
 From 15bfa482ceba08887dead6061fa098090c57119e Mon Sep 17 00:00:00 2001
 From: Christian Leithner <christian_leithner@comcast.com>
+Upstream-Status: Pending
 Date: Thu, 23 Oct 2025 19:34:01 +0000
 Subject: [PATCH 3/3] Disable pigweed venv generation because of codegen
 

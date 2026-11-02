@@ -28,9 +28,8 @@ SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;bran
 # Upgrade setuptools in the Pigweed venv to >= 68.0.0 (needed for PEP 660 editable_wheel).
 # Safe to apply unconditionally: if setuptools is already new enough, the pip upgrade is a no-op.
 SRC_URI:append = " file://0009-pigweed-upgrade-setuptools-for-yocto.patch;patchdir=third_party/pigweed/repo"
-
-S = "${WORKDIR}/git"
-B = "${WORKDIR}/build"
+S = "${UNPACKDIR}/${BPN}-${PV}"
+B = "${UNPACKDIR}/build"
 PR = "r1"
 
 DEPENDS:append = " \

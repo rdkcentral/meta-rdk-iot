@@ -8,8 +8,8 @@ SRC_URI += " \
     file://barton.matter \
 "
 
-MATTER_ZAP_FILE = "${WORKDIR}/barton.zap"
-MATTER_IDL_FILE = "${WORKDIR}/barton.matter"
+MATTER_ZAP_FILE = "${UNPACKDIR}/barton.zap"
+MATTER_IDL_FILE = "${UNPACKDIR}/barton.matter"
 
 # Set persistent storage location for production use
 MATTER_CONF_DIR = "/tmp/barton-matter-example"

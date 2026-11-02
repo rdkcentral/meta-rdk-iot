@@ -14,9 +14,9 @@ DEPENDS:append = " \
 
 RPROVIDES_${PN} += "barton"
 
-SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
+SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1;destsuffix=${BPN}-${PV}"
 SRCREV = "bdb58a588a370f202bcffb24664323576133f57e"
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/${BPN}-${PV}"
 PR = "r2"
 
 inherit cmake pkgconfig

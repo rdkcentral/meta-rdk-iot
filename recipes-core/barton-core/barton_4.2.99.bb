@@ -18,7 +18,7 @@ RPROVIDES:${PN} += "barton"
 SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=barton;nobranch=1"
 # Test-only version for the standalone ZHAL migration (BartonCore branch tlea/dev/newzhal). It builds against the
 # barton-zigbee-hal recipe instead of the zhal that 4.2.x carries in-tree. Not a Barton release.
-SRCREV = "40d4fa599133d577dc66a999c65cfe21c728b6a8"
+SRCREV = "2459761cf3f07ce95ad1b2b59ffd6530ab577927"
 PR = "r0"
 
 S:kirkstone = "${WORKDIR}/git"

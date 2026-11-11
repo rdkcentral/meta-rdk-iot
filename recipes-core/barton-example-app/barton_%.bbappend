@@ -23,7 +23,7 @@ SRC_URI += "file://matter/"
 #     BCORE_MATTER_PROVIDER_HEADER_PATHS
 #     BCORE_MATTER_DELEGATE_HEADER_PATHS
 #     BCORE_LINK_LIBRARIES (for when your custom matter code depends on additional libraries. In yocto, you should also add to bitbake DEPENDS variable)
-MATTER_PROVIDERS="${WORKDIR}/matter/ExampleTestDACProvider.cpp;${S}/core/src/subsystems/matter/providers/BartonCommissionableDataProvider.cpp;${S}/core/src/subsystems/matter/providers/default/DefaultCommissionableDataProvider.cpp"
+MATTER_PROVIDERS="${UNPACKDIR}/matter/ExampleTestDACProvider.cpp;${S}/core/src/subsystems/matter/providers/BartonCommissionableDataProvider.cpp;${S}/core/src/subsystems/matter/providers/default/DefaultCommissionableDataProvider.cpp"
 
 # Choose self-signed operational certificate delegate for usability. Actual products need their own
 # delegate that wires up to a valid CA. They may also use the default CertifierOperationalCredentialsIssuer

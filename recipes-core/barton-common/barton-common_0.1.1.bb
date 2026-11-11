@@ -12,9 +12,9 @@ DEPENDS:append = " \
     libxml2 \
 "
 
-SRC_URI = "git://git@github.com/rdkcentral/BartonCommon.git;protocol=ssh;name=barton;nobranch=1"
+SRC_URI = "git://git@github.com/rdkcentral/BartonCommon.git;protocol=ssh;name=barton;nobranch=1;destsuffix=${BPN}-${PV}"
 SRCREV = "aadf6f2b18991deb9bd261adb8125e3caa4abfcd"
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/${BPN}-${PV}"
 PR = "r0"
 
 inherit cmake pkgconfig

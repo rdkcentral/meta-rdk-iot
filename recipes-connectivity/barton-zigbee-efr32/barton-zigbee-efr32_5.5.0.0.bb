@@ -13,7 +13,7 @@ SRC_URI = "git://git@github.com/rdkcentral/BartonZigbeeEFR32.git;protocol=ssh;no
            file://zigbeed.conf \
           "
 # BartonZigbeeEFR32 5.5.0.0: build extension support, build-time ZAP generation, SDK fetched by script (no submodule).
-SRCREV_zigbeecore = "3ee19ffe521cb7ec9f755750a33b8c75b61708bd"
+SRCREV_zigbeecore = "8812fe31e4129cc470853d75c99effec3f5e39ae"
 
 PR = "r1"
 
@@ -61,7 +61,7 @@ EXTRA_OECMAKE = "\
     -DPython3_EXECUTABLE=${PYTHON} \
     -DZIGBEECORE_BOARD=${ZIGBEECORE_BOARD} \
     -DZIGBEECORE_MAKE_GOAL=${ZIGBEECORE_MAKE_GOAL} \
-    -DZIGBEECORE_BUILDSTAMP=${PV}-${DATETIME} \
+    -DZIGBEECORE_BUILDSTAMP=${PV}-${@(lambda t: t[:8] + '-' + t[8:])(d.getVar('DATETIME'))} \
     -DZIGBEED_ARCH=${ZIGBEED_ARCH} \
     -DZIGBEECORE_EXTENSION_DIR=${ZIGBEECORE_EXTENSION_DIR} \
     '-DCMAKE_EXE_LINKER_FLAGS=${HOST_CC_ARCH} ${TOOLCHAIN_OPTIONS} ${LDFLAGS}' \

@@ -13,7 +13,7 @@ SRC_URI = "git://git@github.com/rdkcentral/BartonZigbeeEFR32.git;protocol=ssh;no
            file://zigbeed.conf \
           "
 # BartonZigbeeEFR32 5.5.0.0: build extension support, build-time ZAP generation, SDK fetched by script (no submodule).
-SRCREV_zigbeecore = "8812fe31e4129cc470853d75c99effec3f5e39ae"
+SRCREV_zigbeecore = "30c1b9420f4f7644419760dd60a8a1af2b0cd15c"
 
 PR = "r1"
 

@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=175792518e4ac015ab6696d16c4f607e"
 DEPENDS = "glib-2.0 cjson"
 
 SRC_URI = "git://git@github.com/rdkcentral/BartonZigbeeHAL.git;protocol=ssh;name=zhal;nobranch=1"
-SRCREV = "ae2fb3efb53ca0eb78f84ce0358683f0d8216efc"
+SRCREV = "75a34b0451ee7477d1248db370d078c20a479e18"
 PR = "r0"
 
 S:kirkstone = "${WORKDIR}/git"

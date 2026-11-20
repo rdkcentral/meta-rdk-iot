@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 # Always coordinate Matter and Barton version updates to maintain compatibility.
 SRCREV = "abcc720b48c5e59c0edcfe65c516f76ca9448aa3"
 
-SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;branch=v1.5-branch;destsuffix=git;depth=1 \
+SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;branch=v1.5-branch;destsuffix=${BPN}-${PV};depth=1 \
           file://0001-pigweed-skip-upgrade-symlink-pip.patch \
           file://0002-skip-bluezoo-python-version.patch \
           file://0003-pigweed-fix-gn-venv-creation-for-yocto.patch \
@@ -29,8 +29,8 @@ SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;bran
 # Safe to apply unconditionally: if setuptools is already new enough, the pip upgrade is a no-op.
 SRC_URI:append = " file://0009-pigweed-upgrade-setuptools-for-yocto.patch;patchdir=third_party/pigweed/repo"
 S = "${UNPACKDIR}/${BPN}-${PV}"
-B = "${UNPACKDIR}/build"
-PR = "r1"
+B = "${WORKDIR}/build"
+PR = "r2"
 
 DEPENDS:append = " \
     curl-native \

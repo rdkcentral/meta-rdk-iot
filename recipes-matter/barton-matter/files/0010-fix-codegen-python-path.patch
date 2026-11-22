@@ -1,0 +1,32 @@
+From: Copilot <223556219+Copilot@users.noreply.github.com>
+Subject: [PATCH] matter: restore missing PythonPath helper
+
+The pinned Matter source imports PythonPath from scripts/python_path.py in
+both codegen entry points, but the file is absent from the source commit.
+Provide the helper used to temporarily expose py_matter_idl.
+
+Upstream-Status: Pending [not submitted upstream]
+
+---
+diff --git a/scripts/python_path.py b/scripts/python_path.py
+new file mode 100644
+--- /dev/null
++++ b/scripts/python_path.py
+@@ -0,0 +1,17 @@
++import sys
++from pathlib import Path
++
++class PythonPath:
++    def __init__(self, path, relative_to):
++        self._path = str(Path(relative_to).resolve().parent / path)
++        self._added = False
++
++    def __enter__(self):
++        if self._path not in sys.path:
++            sys.path.insert(0, self._path)
++            self._added = True
++        return self
++
++    def __exit__(self, _exc_type, _exc_value, _traceback):
++        if self._added:
++            sys.path.remove(self._path)

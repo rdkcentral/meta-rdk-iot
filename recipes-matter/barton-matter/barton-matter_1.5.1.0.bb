@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 # Always coordinate Matter and Barton version updates to maintain compatibility.
 SRCREV = "abcc720b48c5e59c0edcfe65c516f76ca9448aa3"
 
-SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;branch=v1.5-branch;destsuffix=git;depth=1 \
+SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;branch=v1.5-branch;depth=1 \
           file://0001-pigweed-skip-upgrade-symlink-pip.patch \
           file://0002-skip-bluezoo-python-version.patch \
           file://0003-pigweed-fix-gn-venv-creation-for-yocto.patch \
@@ -25,11 +25,11 @@ SRC_URI = "git://github.com/project-chip/connectedhomeip.git;protocol=https;bran
           file://0008-fix-bash-completion-compatibility.patch \
           "
 
-# Upgrade setuptools in the Pigweed venv to >= 68.0.0 (needed for PEP 660 editable_wheel).
-# Safe to apply unconditionally: if setuptools is already new enough, the pip upgrade is a no-op.
+# Bootstrap pip inside the Pigweed venv and keep setuptools below 82, which
+# removed pkg_resources still imported by Pigweed's environment check.
 SRC_URI:append = " file://0009-pigweed-upgrade-setuptools-for-yocto.patch;patchdir=third_party/pigweed/repo"
+SRC_URI:append = " file://0010-fix-codegen-python-path.patch"
 
-S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
 PR = "r1"
 
@@ -37,6 +37,7 @@ DEPENDS:append = " \
     curl-native \
     python3-pip-native \
     python3-more-itertools-native \
+    python3-jinja2-native \
     ca-certificates-native \
     gobject-introspection-native \
     rsync-native \
@@ -126,10 +127,12 @@ addtask do_init_submodules after do_unpack before do_patch
 # and import all new/changed environment variables back into the current shell.
 # Usage: _matter_source_bash_env <script>
 _matter_source_bash_env() {
-    eval "$(bash -s -- "$1" <<'BASH'
+    eval "$(bash -s -- "$@" <<'BASH'
 set -e
 _env_before="$(env | sort)"
-. "$1" >&2
+_script="$1"
+shift
+. "$_script" "$@" >&2
 comm -13 <(printf "%s\n" "$_env_before") <(env | sort) | while IFS="=" read -r _k _v; do
     [ -n "$_k" ] || continue
     _v_escaped=$(printf "%s" "$_v" | sed "s/'/'\\''/g")
@@ -137,6 +140,13 @@ comm -13 <(printf "%s\n" "$_env_before") <(env | sort) | while IFS="=" read -r _
 done
 BASH
 )"
+}
+
+_matter_setup_python_env() {
+    export HOME="${WORKDIR}"
+    mkdir -p "${WORKDIR}/host-bin"
+    ln -sf "$(command -v python3)" "${WORKDIR}/host-bin/python"
+    export PATH="${WORKDIR}/host-bin:${PATH}"
 }
 
 do_configure:prepend() {
@@ -179,12 +189,13 @@ do_configure:prepend() {
     export SSL_CERT_FILE=${STAGING_DIR_NATIVE}/etc/ssl/certs/ca-certificates.crt
     export YOCTO_BUILD=1
     export TMP="${WORKDIR}/zap-tmp"
+    _matter_setup_python_env
 
     # Bootstrap Matter/Pigweed — sets PATH so gn/ninja from pigweed are available.
     # bootstrap.sh uses bash-specific syntax so run it under bash explicitly.
     cd ${S}
     chmod +x ./scripts/bootstrap.sh
-    _matter_source_bash_env ./scripts/bootstrap.sh
+    _matter_source_bash_env ./scripts/bootstrap.sh -p none
 
     # Generate project config
     rm -rf ${MATTER_PROJECT_CONFIG_DIR}
@@ -205,6 +216,7 @@ do_compile:prepend() {
     export SSL_CERT_FILE=${STAGING_DIR_NATIVE}/etc/ssl/certs/ca-certificates.crt
     export YOCTO_BUILD=1
     export TMP="${WORKDIR}/zap-tmp"
+    _matter_setup_python_env
     _matter_source_bash_env ./scripts/activate.sh
 }
 

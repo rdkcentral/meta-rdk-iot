@@ -16,8 +16,6 @@ SRC_URI = "git://git@github.com/rdkcentral/BartonCommon.git;protocol=ssh;name=ba
 SRCREV = "5cbc66ae7640dcf64a5f8a70f1000042e743099a"
 PR = "r0"
 
-S:kirkstone = "${WORKDIR}/git"
-
 inherit cmake pkgconfig
 
 EXTRA_OECMAKE = "\

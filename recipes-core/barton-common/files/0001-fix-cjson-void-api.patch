@@ -1,0 +1,31 @@
+From: Copilot <223556219+Copilot@users.noreply.github.com>
+Subject: [PATCH] barton-common: adapt json pointer to void cJSON APIs
+
+The current cJSON headers declare add and replace operations as void. Check
+the resulting object membership instead of assigning those calls as booleans.
+
+Upstream-Status: Pending
+---
+diff --git a/libs/json/c/src/jsonPointer.c b/libs/json/c/src/jsonPointer.c
+--- a/libs/json/c/src/jsonPointer.c
++++ b/libs/json/c/src/jsonPointer.c
+@@ -430,1 +430,10 @@
+-                    added = cJSON_AddItemToObject(parent, item, child);
++                    if (child == NULL)
++                    {
++                        break;
++                    }
++                    cJSON_AddItemToObject(parent, item, child);
++                    if (cJSON_GetObjectItem(parent, item) != child)
++                    {
++                        cJSON_Delete(child);
++                        break;
++                    }
+@@ -434,1 +443,2 @@
+-                    added = cJSON_AddItemToObject(parent, item, value);
++                    cJSON_AddItemToObject(parent, item, value);
++                    added = cJSON_GetObjectItem(parent, item) == value;
+@@ -440,1 +450,2 @@
+-                added = cJSON_ReplaceItemInObject(parent, item, value);
++                cJSON_ReplaceItemInObject(parent, item, value);
++                added = cJSON_GetObjectItem(parent, item) == value;

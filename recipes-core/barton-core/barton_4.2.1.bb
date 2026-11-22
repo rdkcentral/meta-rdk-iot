@@ -19,9 +19,10 @@ SRC_URI = "git://git@github.com/rdkcentral/BartonCore.git;protocol=ssh;name=bart
 SRCREV = "0cdc7ebe2f5f5ae547e6192433404fe68676ed70"
 PR = "r0"
 
-S:kirkstone = "${WORKDIR}/git"
 
 inherit cmake pkgconfig python3native
+
+DEBUG_PREFIX_MAP:append = " -ffile-prefix-map=${WORKDIR}/sources/barton=${TARGET_DBGSRC_DIR}"
 
 # These options provide a convenient facade in front of bitbake dependency management. A client
 # can choose to just overwrite EXTRA_OECMAKE options directly if they wish but must be mindful of
@@ -75,6 +76,39 @@ do_install:append() {
         install -m 0755 ${WORKDIR}/build/reference/barton-core-reference ${D}${bindir}/barton-core-reference
     fi
 }
+
+python do_bartonpathcleanup() {
+    import os
+    import re
+
+    targets_file = os.path.join(
+        d.getVar("D"),
+        d.getVar("libdir").lstrip("/"),
+        "cmake/BartonCore/BartonCoreConfigTargets.cmake",
+    )
+    if not os.path.exists(targets_file):
+        bb.fatal("Missing Barton CMake targets file: %s" % targets_file)
+
+    with open(targets_file, encoding="utf-8") as f:
+        contents = f.read()
+
+    # These source selections are build inputs, not consumer compile definitions.
+    path_options = (
+        "PROVIDER_IMPLEMENTATIONS|DELEGATE_IMPLEMENTATIONS|"
+        "PROVIDER_HEADER_PATHS|DELEGATE_HEADER_PATHS"
+    )
+    contents, _ = re.subn(
+        r'BARTON_CONFIG_MATTER_(?:%s)=\\".*?\\";?' % path_options,
+        "",
+        contents,
+    )
+    if d.getVar("TMPDIR") in contents:
+        bb.fatal("Barton CMake targets file still contains TMPDIR: %s" % targets_file)
+
+    with open(targets_file, "w", encoding="utf-8") as f:
+        f.write(contents)
+}
+addtask bartonpathcleanup after do_install before do_package
 
 FILES:${PN} += "${@bb.utils.contains('BARTON_BUILD_REFERENCE', 'ON', '${bindir}/barton-core-reference', '', d)}"
 

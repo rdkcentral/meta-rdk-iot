@@ -3,6 +3,8 @@ From: tlea <tlea@comcast.com>
 Date: Fri, 20 Mar 2026 10:46:29 -0500
 Subject: [PATCH] Add JS_GetMemoryUsage API for memory instrumentation
 
+Upstream-Status: Pending [not submitted upstream]
+
 ---
  mquickjs.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
  mquickjs.h | 17 +++++++++++++++++

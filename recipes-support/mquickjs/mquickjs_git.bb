@@ -13,7 +13,6 @@ SRC_URI = "git://github.com/bellard/mquickjs.git;protocol=https;branch=main \
            file://0001-add-memory-usage-api.patch \
           "
 
-S = "${WORKDIR}/git"
 PV = "0.0.1+git${SRCPV}"
 PR = "r0"
 
@@ -31,7 +30,7 @@ EXTRA_OECMAKE:class-native = " \
 "
 
 do_configure:prepend() {
-    cp ${WORKDIR}/CMakeLists.txt ${S}/CMakeLists.txt
+    cp ${UNPACKDIR}/CMakeLists.txt ${S}/CMakeLists.txt
 }
 
 # Cross-builds need pre-generated headers since the generator can't run on the host.
